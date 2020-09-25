@@ -3,7 +3,7 @@ package org.yafa;
 import io.quarkus.test.junit.NativeImageTest;
 
 @NativeImageTest
-public class NativeExampleResourceIT extends ExampleResourceTest {
+public class NativeStatusResourceIT extends StatusResourceTest {
 
     // Execute the same tests but in native mode.
 }
