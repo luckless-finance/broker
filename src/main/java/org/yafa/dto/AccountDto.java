@@ -7,12 +7,7 @@ import lombok.Value;
 @Value
 @Builder
 @AllArgsConstructor
-public class StatusDto {
+public class AccountDto {
 
-  Status status;
-
-  public enum Status {
-    OK,
-    ERROR
-  }
+	String name;
 }
