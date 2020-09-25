@@ -1,7 +1,7 @@
 package org.yafa.services;
 
 import javax.enterprise.context.Dependent;
-import org.yafa.dto.StatusDto;
+import org.yafa.api.dto.StatusDto;
 
 @Dependent
 public class StatusService {

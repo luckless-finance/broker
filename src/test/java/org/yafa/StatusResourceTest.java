@@ -3,7 +3,7 @@ package org.yafa;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
-import org.yafa.dto.StatusDto;
+import org.yafa.api.dto.StatusDto;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
