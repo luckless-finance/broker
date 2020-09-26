@@ -1,6 +1,7 @@
 package org.yafa.api;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
+import org.yafa.annotations.DateFormat;
 import org.yafa.api.dto.Account;
 import org.yafa.api.dto.Holding;
 import org.yafa.api.dto.Order;
@@ -71,7 +73,7 @@ public class AccountResource {
       // FIXME: implement datetime QueryParam
       // https://zenidas.wordpress.com/recipes/configurable-date-format-in-jax-rs-as-queryparam/
       @QueryParam("timestamp")
-          String timestamp) {
+      @DateFormat Date timestamp) {
     throw new ClientErrorException(Status.NOT_IMPLEMENTED);
   }
 
