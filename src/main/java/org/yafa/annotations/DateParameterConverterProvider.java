@@ -2,7 +2,7 @@ package org.yafa.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Date;
+import java.time.LocalDateTime;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
@@ -16,7 +16,7 @@ public class DateParameterConverterProvider
   @Override
   public <T> ParamConverter<T> getConverter(final Class<T> rawType,
       final Type genericType, final Annotation[] annotations) {
-    if (Date.class.equals(rawType)) {
+    if (LocalDateTime.class.equals(rawType)) {
       final DateParameterConverter dateParameterConverter =
           new DateParameterConverter();
 

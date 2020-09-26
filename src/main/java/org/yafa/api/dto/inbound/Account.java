@@ -1,15 +1,15 @@
-package org.yafa.api.dto;
+package org.yafa.api.dto.inbound;
 
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
-@Value
-@Builder
+@Data
+@SuperBuilder
 @AllArgsConstructor
 public class Account {
 
 	@NotBlank
-	String name;
+	final String name;
 }

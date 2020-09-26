@@ -1,4 +1,4 @@
-package org.yafa.api.dto;
+package org.yafa.api.dto.outbound;
 
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

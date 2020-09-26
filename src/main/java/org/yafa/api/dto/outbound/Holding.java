@@ -1,19 +1,17 @@
-package org.yafa.api.dto;
+package org.yafa.api.dto.outbound;
 
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
+import org.yafa.api.dto.Asset;
 
 @Value
 @Builder
-@AllArgsConstructor
 public class Holding {
 
   Asset asset;
   LocalDateTime timestamp;
-  float quantity;
-  float marketValue;
-  float bookValue;
-
+  double quantity;
+  double marketValue;
+  double bookValue;
 }

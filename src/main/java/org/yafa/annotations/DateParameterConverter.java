@@ -1,13 +1,14 @@
 package org.yafa.annotations;
 
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.ParamConverter;
 
-public class DateParameterConverter implements ParamConverter<Date> {
+public class DateParameterConverter implements ParamConverter<LocalDateTime> {
 
   public static final String DEFAULT_FORMAT = DateTimeFormat.DEFAULT_DATE_TIME;
 
@@ -24,7 +25,7 @@ public class DateParameterConverter implements ParamConverter<Date> {
   }
 
   @Override
-  public Date fromString(String string) {
+  public LocalDateTime fromString(String string) {
     String format = DEFAULT_FORMAT;
     if (customDateFormat != null) {
       format = customDateFormat.value();
@@ -34,16 +35,18 @@ public class DateParameterConverter implements ParamConverter<Date> {
 
     final SimpleDateFormat simpleDateFormat = new
         SimpleDateFormat(format);
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(format);
 
     try {
-      return simpleDateFormat.parse(string);
-    } catch (ParseException ex) {
+      return LocalDateTime.from(dateTimeFormatter.parse(string));
+//      return LocalDateTime.ofInstant(simpleDateFormat.parse(string).toInstant(), simpleDateFormat.parse(string).);
+    } catch (DateTimeParseException ex) {
       throw new WebApplicationException(ex);
     }
   }
 
   @Override
-  public String toString(Date date) {
+  public String toString(LocalDateTime date) {
     return new SimpleDateFormat(DEFAULT_FORMAT).format(date);
   }
 }
