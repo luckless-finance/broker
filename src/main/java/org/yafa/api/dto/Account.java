@@ -8,7 +8,7 @@ import lombok.Value;
 @Value
 @Builder
 @AllArgsConstructor
-public class AccountDto {
+public class Account {
 
 	@NotBlank
 	String name;

@@ -1,34 +1,39 @@
 package org.yafa.state;
 
 import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Default;
 import lombok.extern.slf4j.Slf4j;
-import org.yafa.api.dto.AccountDto;
+import org.yafa.api.dto.Account;
 
 @Default
 @Dependent
 @Slf4j
 public class InMemory implements StateStore {
 
-  Map<String, AccountDto> accounts = Maps.newHashMap();
-
+  Map<String, Account> accounts = Maps.newHashMap();
 
   @Override
-  public Optional<AccountDto> findAccount(String name) {
-    return Optional.ofNullable(accounts.getOrDefault(name, null));
+  public Optional<Account> createAccount(Account account) {
+    log.debug("creating account: {}", account.getName());
+    if (accounts.containsKey(account.getName())) {
+      return Optional.empty();
+    } else {
+      accounts.put(account.getName(), account);
+      return getAccount(account.getName());
+    }
   }
 
   @Override
-  public Optional<AccountDto> createAccount(AccountDto accountDto) {
-    log.debug("creating account: {}", accountDto.getName());
-    if (accounts.containsKey(accountDto.getName())) {
-      return Optional.empty();
-    } else {
-      accounts.put(accountDto.getName(), accountDto);
-      return findAccount(accountDto.getName());
-    }
+  public Collection<Account> getAccounts() {
+    return accounts.values();
+  }
+
+  @Override
+  public Optional<Account> getAccount(String accountId) {
+    return Optional.ofNullable(accounts.getOrDefault(accountId, null));
   }
 }

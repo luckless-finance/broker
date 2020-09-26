@@ -1,13 +1,18 @@
 package org.yafa.state;
 
+import java.util.Collection;
 import java.util.Optional;
-import org.yafa.api.dto.AccountDto;
+import org.yafa.api.dto.Account;
 
 public interface StateStore {
 
-  Optional<AccountDto> findAccount(String name);
+  Optional<Account> createAccount(Account account);
 
-  Optional<AccountDto> createAccount(AccountDto accountDto);
+  Collection<Account> getAccounts();
+
+  Optional<Account> getAccount(String accountId);
+
+
 
 
 }

@@ -8,13 +8,12 @@ import lombok.Value;
 @Value
 @Builder
 @AllArgsConstructor
-public class StatusDto {
+public class ServerStatus {
 
   @NotNull
   Status status;
 
   public enum Status {
-    OK,
-    ERROR
+    OK
   }
 }
