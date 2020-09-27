@@ -24,7 +24,6 @@ public class InMemory implements StateStore {
   Map<org.yafa.api.dto.outbound.Account, Map<String, Order>> orders = Maps.newHashMap();
   Map<org.yafa.api.dto.outbound.Account, Map<String, Trade>> trades = Maps.newHashMap();
 
-
   private Optional<org.yafa.api.dto.outbound.Account> findByName(String name) {
     return accounts.values().stream().filter(account -> account.getName().equals(name)).findFirst();
   }
@@ -88,8 +87,8 @@ public class InMemory implements StateStore {
   }
 
   @Override
-  public Order saveOrder(org.yafa.api.dto.outbound.Account account,
-      org.yafa.api.dto.inbound.Order order) {
+  public Order saveOrder(
+      org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order) {
     final Order persistedOrder = withId(order);
     getAccount(account.getId());
     orders.get(account).put(persistedOrder.getId(), persistedOrder);
@@ -102,7 +101,6 @@ public class InMemory implements StateStore {
     return orders.get(account).values();
   }
 
-
   @Override
   public Collection<Trade> getTrades(org.yafa.api.dto.outbound.Account account) {
     getAccount(account.getId());
@@ -110,12 +108,11 @@ public class InMemory implements StateStore {
   }
 
   @Override
-  public org.yafa.api.dto.outbound.Trade saveTrade(org.yafa.api.dto.outbound.Account account,
-      Trade trade) {
+  public org.yafa.api.dto.outbound.Trade saveTrade(
+      org.yafa.api.dto.outbound.Account account, Trade trade) {
     getAccount(account.getId());
     org.yafa.api.dto.outbound.Trade tradeWithId = withId(trade);
     trades.get(account).put(tradeWithId.getId(), tradeWithId);
     return tradeWithId;
   }
-
 }

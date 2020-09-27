@@ -10,18 +10,11 @@ import org.yafa.api.dto.Asset;
 @SuperBuilder
 public class Trade {
 
-  @NotNull
-  final Asset asset;
-  @NotNull
-  final LocalDateTime timestamp;
-  @NotNull
-  final double quantity;
-  @NotNull
-  final double cashFlow;
-  @NotNull
-  final float marketUnitValue;
-  @NotNull
-  final float marketValue;
-  @NotNull
-  final float bookValue;
+  @NotNull final Asset asset;
+  @NotNull final LocalDateTime timestamp;
+  @NotNull final double quantity;
+  @NotNull final double cashFlow;
+  @NotNull final float marketUnitValue;
+  @NotNull final float marketValue;
+  @NotNull final float bookValue;
 }

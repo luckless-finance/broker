@@ -10,6 +10,5 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class Trade extends org.yafa.api.dto.inbound.Trade {
 
-  @NotBlank
-  String id;
+  @NotBlank String id;
 }

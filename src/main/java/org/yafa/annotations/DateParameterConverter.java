@@ -1,6 +1,5 @@
 package org.yafa.annotations;
 
-
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,8 +18,7 @@ public class DateParameterConverter implements ParamConverter<LocalDateTime> {
     this.customDateFormat = customDateFormat;
   }
 
-  public void setCustomDateTimeFormat(DateTimeFormat
-      customDateTimeFormat) {
+  public void setCustomDateTimeFormat(DateTimeFormat customDateTimeFormat) {
     this.customDateTimeFormat = customDateTimeFormat;
   }
 
@@ -33,13 +31,13 @@ public class DateParameterConverter implements ParamConverter<LocalDateTime> {
       format = customDateTimeFormat.value();
     }
 
-    final SimpleDateFormat simpleDateFormat = new
-        SimpleDateFormat(format);
+    final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(format);
 
     try {
       return LocalDateTime.from(dateTimeFormatter.parse(string));
-//      return LocalDateTime.ofInstant(simpleDateFormat.parse(string).toInstant(), simpleDateFormat.parse(string).);
+      //      return LocalDateTime.ofInstant(simpleDateFormat.parse(string).toInstant(),
+      // simpleDateFormat.parse(string).);
     } catch (DateTimeParseException ex) {
       throw new WebApplicationException(ex);
     }

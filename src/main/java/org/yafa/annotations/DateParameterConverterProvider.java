@@ -7,28 +7,21 @@ import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
 
-
 @Provider
-public class DateParameterConverterProvider
-    implements ParamConverterProvider {
+public class DateParameterConverterProvider implements ParamConverterProvider {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> ParamConverter<T> getConverter(final Class<T> rawType,
-      final Type genericType, final Annotation[] annotations) {
+  public <T> ParamConverter<T> getConverter(
+      final Class<T> rawType, final Type genericType, final Annotation[] annotations) {
     if (LocalDateTime.class.equals(rawType)) {
-      final DateParameterConverter dateParameterConverter =
-          new DateParameterConverter();
+      final DateParameterConverter dateParameterConverter = new DateParameterConverter();
 
       for (Annotation annotation : annotations) {
-        if (DateTimeFormat.class.equals(
-            annotation.annotationType())) {
-          dateParameterConverter.
-              setCustomDateTimeFormat((DateTimeFormat) annotation);
-        } else if (DateFormat.class.equals(
-            annotation.annotationType())) {
-          dateParameterConverter.
-              setCustomDateFormat((DateFormat) annotation);
+        if (DateTimeFormat.class.equals(annotation.annotationType())) {
+          dateParameterConverter.setCustomDateTimeFormat((DateTimeFormat) annotation);
+        } else if (DateFormat.class.equals(annotation.annotationType())) {
+          dateParameterConverter.setCustomDateFormat((DateFormat) annotation);
         }
       }
       return (ParamConverter<T>) dateParameterConverter;

@@ -8,9 +8,7 @@ import javax.validation.constraints.NotBlank;
 @JsonDeserialize(as = String.class)
 public class Id {
 
-  @NotBlank
-  @JsonIgnore
-  private final String id;
+  @NotBlank @JsonIgnore private final String id;
 
   private Id(String id) {
     this.id = id;

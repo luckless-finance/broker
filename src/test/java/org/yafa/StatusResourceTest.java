@@ -13,11 +13,7 @@ public class StatusResourceTest {
 
   @Test
   public void testStatus() {
-    Response response = given().when().get("/status")
-        .then()
-        .statusCode(200)
-        .extract()
-        .response();
+    Response response = given().when().get("/status").then().statusCode(200).extract().response();
     ServerStatus serverStatus = response.as(ServerStatus.class);
     assertEquals(ServerStatus.Status.OK, serverStatus.getStatus());
   }

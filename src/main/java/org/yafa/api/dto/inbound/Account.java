@@ -10,6 +10,5 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Account {
 
-	@NotBlank
-	final String name;
+  @NotBlank final String name;
 }

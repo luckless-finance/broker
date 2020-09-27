@@ -23,16 +23,13 @@ import org.yafa.api.dto.outbound.Holding;
 import org.yafa.exceptions.ConflictException;
 import org.yafa.services.AccountService;
 
-/**
- * FIXME timestamps are returned at arrays
- */
+/** FIXME timestamps are returned at arrays */
 @Path("/accounts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AccountResource {
 
-  @Inject
-  AccountService accountService;
+  @Inject AccountService accountService;
 
   @POST
   public org.yafa.api.dto.outbound.Account create(@Valid Account account) {
@@ -69,29 +66,23 @@ public class AccountResource {
   @GET
   @Path("/{accountId}/holdings")
   public Collection<Holding> listHoldings(
-      @PathParam("accountId")
-          String accountId,
-      @DateFormat
-      @QueryParam("timestamp")
-          Date timestamp) {
-    return accountService.listHoldings(accountService.getAccount(accountId),
-        LocalDateTime.from(timestamp.toInstant()));
+      @PathParam("accountId") String accountId,
+      @DateFormat @QueryParam("timestamp") Date timestamp) {
+    return accountService.listHoldings(
+        accountService.getAccount(accountId), LocalDateTime.from(timestamp.toInstant()));
   }
 
   @POST
   @Path("/{accountId}/orders")
-  public org.yafa.api.dto.outbound.Order submitOrder(@PathParam("accountId") String accountId,
-      @Valid org.yafa.api.dto.inbound.Order order) {
+  public org.yafa.api.dto.outbound.Order submitOrder(
+      @PathParam("accountId") String accountId, @Valid org.yafa.api.dto.inbound.Order order) {
     return accountService.submitOrder(accountService.getAccount(accountId), order);
   }
-
 
   @GET
   @Path("/{accountId}/orders")
   public Collection<org.yafa.api.dto.outbound.Order> listOrders(
       @PathParam("accountId") String accountId) {
     return accountService.listOrders(accountService.getAccount(accountId));
-
   }
-
 }

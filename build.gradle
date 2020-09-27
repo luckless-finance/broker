@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'io.quarkus'
     id "com.diffplug.spotless" version "5.6.1"
+    id 'jacoco'
+    id "com.github.spotbugs" version "4.5.0"
 }
 
 repositories {
@@ -27,6 +29,8 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.hamcrest:hamcrest:2.2'
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
+    spotbugs 'com.github.spotbugs:spotbugs:4.0.0'
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
@@ -55,17 +59,31 @@ test {
 spotless {
     java {
         importOrder() // standard import order
-        importOrder('java', 'javax', 'com.acme', '') // or importOrderFile
-        // You probably want an empty string at the end - all of the
-        // imports you didn't specify explicitly will go there.
-
         removeUnusedImports()
-
         googleJavaFormat() // has its own section below
-        eclipse()          // has its own section below
-        prettier()         // has its own section below
-        clangFormat()      // has its own section below
+    }
+}
+spotbugs {
+    ignoreFailures = false
+}
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
 
-        licenseHeader '/* (C) $YEAR */' // or licenseHeaderFile
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
     }
 }

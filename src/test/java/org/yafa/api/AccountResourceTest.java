@@ -17,42 +17,36 @@ class AccountResourceTest {
   Account account = Account.builder().name("some account").build();
 
   @BeforeEach
-  void setUp() {
-  }
+  void setUp() {}
 
   @Test
-  void create() {
-
-  }
+  void create() {}
 
   @Test
-  void getAccount() {
-  }
+  void getAccount() {}
 
   @Test
   void listAccounts() {
-    Response response = given().contentType(ContentType.JSON).when()
-        .get()
-        .then()
-        .statusCode(200)
-        .extract()
-        .response();
-
+    Response response =
+        given()
+            .contentType(ContentType.JSON)
+            .when()
+            .get()
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
   }
 
   @Test
-  void listTrades() {
-  }
+  void listTrades() {}
 
   @Test
-  void listHoldings() {
-  }
+  void listHoldings() {}
 
   @Test
-  void submitOrder() {
-  }
+  void submitOrder() {}
 
   @Test
-  void listOrders() {
-  }
+  void listOrders() {}
 }

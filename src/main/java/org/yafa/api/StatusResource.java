@@ -12,8 +12,7 @@ import org.yafa.services.StatusService;
 @Produces(MediaType.APPLICATION_JSON)
 public class StatusResource {
 
-  @Inject
-  StatusService statusService;
+  @Inject StatusService statusService;
 
   @GET
   public ServerStatus getStatus() {

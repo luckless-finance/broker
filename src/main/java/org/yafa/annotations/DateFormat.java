@@ -8,8 +8,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * @see <a href="https://zenidas.wordpress.com/recipes/configurable-date-format-in-jax-rs-as-queryparam/">tutorial
- * on custom JAX RS QueryParam</a>
+ * @see <a
+ *     href="https://zenidas.wordpress.com/recipes/configurable-date-format-in-jax-rs-as-queryparam/">tutorial
+ *     on custom JAX RS QueryParam</a>
  */
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})

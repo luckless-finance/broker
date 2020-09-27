@@ -11,11 +11,9 @@ import lombok.Value;
 @AllArgsConstructor
 public class ServerStatus {
 
-  @NotNull
-  Status status;
+  @NotNull Status status;
 
-  @NotNull
-  LocalDateTime timestamp = LocalDateTime.now();
+  @NotNull LocalDateTime timestamp = LocalDateTime.now();
 
   public enum Status {
     OK

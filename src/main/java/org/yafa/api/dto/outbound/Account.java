@@ -5,12 +5,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
 
-
 @Value
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class Account extends org.yafa.api.dto.inbound.Account {
 
-  @NotBlank
-  String id;
+  @NotBlank String id;
 }

@@ -17,8 +17,7 @@ import org.yafa.state.StateStore;
 @Dependent
 public class AccountService {
 
-  @Inject
-  StateStore stateStore;
+  @Inject StateStore stateStore;
 
   public org.yafa.api.dto.outbound.Account create(@Valid Account account) {
     return stateStore.createAccount(account);
@@ -36,18 +35,18 @@ public class AccountService {
     return stateStore.getTrades(account);
   }
 
-  private Collection<Trade> resolveOrder(org.yafa.api.dto.outbound.Account account,
-      org.yafa.api.dto.inbound.Order order) {
+  private Collection<Trade> resolveOrder(
+      org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order) {
     return Lists.newLinkedList();
   }
 
-  public Collection<Holding> listHoldings(org.yafa.api.dto.outbound.Account account,
-      LocalDateTime timestamp) {
+  public Collection<Holding> listHoldings(
+      org.yafa.api.dto.outbound.Account account, LocalDateTime timestamp) {
     return Lists.newLinkedList();
   }
 
-  public Order submitOrder(org.yafa.api.dto.outbound.Account account,
-      org.yafa.api.dto.inbound.Order order) {
+  public Order submitOrder(
+      org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order) {
     resolveOrder(account, order).forEach(trade -> stateStore.saveTrade(account, trade));
     return stateStore.saveOrder(account, order);
   }
