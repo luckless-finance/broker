@@ -16,7 +16,7 @@ public class StatusResource {
   StatusService statusService;
 
   @GET
-  public ServerStatus hello() {
+  public ServerStatus getStatus() {
     return statusService.getStatus();
   }
 }

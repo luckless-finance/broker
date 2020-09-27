@@ -1,12 +1,11 @@
 package org.yafa.api.dto.outbound;
 
 import java.time.LocalDateTime;
-import java.util.Currency;
-import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.yafa.api.dto.Asset;
+import org.yafa.api.dto.CurrencyCode;
 import org.yafa.api.dto.inbound.Order;
 import org.yafa.api.dto.inbound.OrderStatus;
 
@@ -14,7 +13,7 @@ class OrderTest {
 
   Order order;
   String symbol = "FOO";
-  Currency currency = Currency.getInstance(Locale.CANADA);
+  CurrencyCode currency = CurrencyCode.CAD;
   double cashFlow = 123;
   double quantity = 12.3;
   LocalDateTime timestamp = LocalDateTime.now();

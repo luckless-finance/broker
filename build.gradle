@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'io.quarkus'
+    id "com.diffplug.spotless" version "5.6.1"
 }
 
 repositories {
@@ -22,7 +23,10 @@ dependencies {
     implementation 'com.google.guava:guava:29.0-jre'
 
     testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
@@ -46,4 +50,22 @@ java {
 
 test {
     systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
+
+spotless {
+    java {
+        importOrder() // standard import order
+        importOrder('java', 'javax', 'com.acme', '') // or importOrderFile
+        // You probably want an empty string at the end - all of the
+        // imports you didn't specify explicitly will go there.
+
+        removeUnusedImports()
+
+        googleJavaFormat() // has its own section below
+        eclipse()          // has its own section below
+        prettier()         // has its own section below
+        clangFormat()      // has its own section below
+
+        licenseHeader '/* (C) $YEAR */' // or licenseHeaderFile
+    }
 }
