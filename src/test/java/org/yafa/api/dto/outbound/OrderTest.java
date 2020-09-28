@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.yafa.api.dto.Asset;
 import org.yafa.api.dto.CurrencyCode;
 import org.yafa.api.dto.inbound.Order;
-import org.yafa.api.dto.inbound.OrderStatus;
 
 class OrderTest {
 
@@ -22,7 +21,6 @@ class OrderTest {
   public void setup() {
     order =
         Order.builder()
-            .orderStatus(OrderStatus.COMPLETE)
             .asset(Asset.builder().symbol(symbol).currency(currency).build())
             .cashFlow(cashFlow)
             .quantity(quantity)
@@ -34,7 +32,6 @@ class OrderTest {
   void testEquivalence() {
     Order equivalentOrder =
         Order.builder()
-            .orderStatus(OrderStatus.COMPLETE)
             .asset(Asset.builder().symbol(symbol).currency(currency).build())
             .cashFlow(cashFlow)
             .quantity(quantity)
@@ -46,7 +43,6 @@ class OrderTest {
     LocalDateTime differentTimestamp = LocalDateTime.now();
     Order differentOrder =
         Order.builder()
-            .orderStatus(OrderStatus.COMPLETE)
             .asset(Asset.builder().symbol(symbol).currency(currency).build())
             .cashFlow(cashFlow)
             .quantity(quantity)

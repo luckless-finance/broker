@@ -14,7 +14,6 @@ public class Order {
 
   @NotNull final Asset asset;
   @NotNull final LocalDateTime timestamp;
-  @NotNull final OrderStatus orderStatus;
   @NotNull final double quantity;
   @NotNull final double cashFlow;
 }

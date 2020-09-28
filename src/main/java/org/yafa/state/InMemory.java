@@ -9,6 +9,7 @@ import javax.enterprise.inject.Default;
 import lombok.extern.slf4j.Slf4j;
 import org.yafa.api.dto.Id;
 import org.yafa.api.dto.inbound.Account;
+import org.yafa.api.dto.inbound.OrderStatus;
 import org.yafa.api.dto.inbound.Trade;
 import org.yafa.api.dto.outbound.Order;
 import org.yafa.exceptions.ConflictException;
@@ -60,7 +61,7 @@ public class InMemory implements StateStore {
   private Order withId(org.yafa.api.dto.inbound.Order order) {
     return Order.builder()
         .id(Id.create())
-        .orderStatus(order.getOrderStatus())
+        .orderStatus(OrderStatus.COMPLETE)
         .asset(order.getAsset())
         .cashFlow(order.getCashFlow())
         .quantity(order.getQuantity())
@@ -71,9 +72,9 @@ public class InMemory implements StateStore {
   private org.yafa.api.dto.outbound.Trade withId(Trade trade) {
     return org.yafa.api.dto.outbound.Trade.builder()
         .id(Id.create())
-        .bookValue(trade.getBookValue())
-        .marketUnitValue(trade.getMarketUnitValue())
-        .marketValue(trade.getMarketValue())
+        .quantity(trade.getQuantity())
+        .unitPrice(trade.getUnitPrice())
+        .cashFlow(trade.getCashFlow())
         .asset(trade.getAsset())
         .timestamp(trade.getTimestamp())
         .build();

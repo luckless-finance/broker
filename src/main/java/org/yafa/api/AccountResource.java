@@ -57,19 +57,11 @@ public class AccountResource {
     return accountService.getAccounts();
   }
 
-  @GET
-  @Path("/{accountId}/trades")
-  public Collection<Trade> listTrades(@PathParam("accountId") String accountId) {
-    return accountService.listTrades(accountService.getAccount(accountId));
-  }
-
-  @GET
-  @Path("/{accountId}/holdings")
-  public Collection<Holding> listHoldings(
-      @PathParam("accountId") String accountId,
-      @DateFormat @QueryParam("timestamp") Date timestamp) {
-    return accountService.listHoldings(
-        accountService.getAccount(accountId), LocalDateTime.from(timestamp.toInstant()));
+  @POST
+  @Path("/{accountId}/cash")
+  public org.yafa.api.dto.outbound.Order cashFlow(
+      @PathParam("accountId") String accountId, @Valid org.yafa.api.dto.inbound.Order order) {
+    return accountService.submitOrder(accountService.getAccount(accountId), order);
   }
 
   @POST
@@ -84,5 +76,20 @@ public class AccountResource {
   public Collection<org.yafa.api.dto.outbound.Order> listOrders(
       @PathParam("accountId") String accountId) {
     return accountService.listOrders(accountService.getAccount(accountId));
+  }
+
+  @GET
+  @Path("/{accountId}/trades")
+  public Collection<Trade> listTrades(@PathParam("accountId") String accountId) {
+    return accountService.listTrades(accountService.getAccount(accountId));
+  }
+
+  @GET
+  @Path("/{accountId}/holdings")
+  public Collection<Holding> listHoldings(
+      @PathParam("accountId") String accountId,
+      @DateFormat @QueryParam("timestamp") Date timestamp) {
+    return accountService.listHoldings(
+        accountService.getAccount(accountId), LocalDateTime.from(timestamp.toInstant()));
   }
 }

@@ -4,15 +4,17 @@ import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
-import org.yafa.api.dto.Asset;
+import org.yafa.api.dto.CurrencyCode;
 
 @Data
 @SuperBuilder
-public class Trade {
+public class CashFlow {
 
-  @NotNull final Asset asset;
+  @NotNull final CurrencyCode currency;
   @NotNull final LocalDateTime timestamp;
   @NotNull final double quantity;
-  @NotNull final double unitPrice;
   @NotNull final double cashFlow;
+  @NotNull final double marketUnitValue;
+  @NotNull final double marketValue;
+  @NotNull final double bookValue;
 }
