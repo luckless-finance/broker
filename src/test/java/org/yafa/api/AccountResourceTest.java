@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
@@ -246,10 +247,24 @@ class AccountResourceTest {
 
   @Test
   void listHoldings() {
-    org.yafa.api.dto.outbound.Trade[] trades = new org.yafa.api.dto.outbound.Trade[]{createTrade(),
-        createTrade(), createTrade()};
-    org.yafa.api.dto.outbound.Trade lastTrade = trades[trades.length - 1];
+    Asset assetPOT = Asset.builder()
+        .symbol("POT")
+        .currency(CurrencyCode.AED)
+        .build();
+    Asset assetABC = Asset.builder()
+        .symbol("ABC")
+        .currency(CurrencyCode.AED)
+        .build();
 
+    org.yafa.api.dto.outbound.Trade[] trades = new org.yafa.api.dto.outbound.Trade[]{
+        createTrade(generateTrade(assetABC)),
+        createTrade(generateTrade(assetPOT)),
+        createTrade(generateTrade(assetABC))
+    };
+
+    List<org.yafa.api.dto.outbound.Trade> abcTrades = Arrays.asList(trades[0], trades[2]);
+    List<org.yafa.api.dto.outbound.Trade> potTrades = Arrays.asList(trades[1]);
+    org.yafa.api.dto.outbound.Trade lastTrade = trades[trades.length - 1];
     Response response =
         given()
             .contentType(ContentType.JSON)
@@ -264,12 +279,23 @@ class AccountResourceTest {
     List<org.yafa.api.dto.outbound.Holding> holdings =
         response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Holding.class);
 
-    assertThat(holdings, hasSize(1));
-    Holding holding = holdings.get(0);
-    assertThat(holding.getAsset(), equalTo(lastTrade.getAsset()));
-    assertThat(holding.getQuantity(),
-        equalTo(lastTrade.getQuantity().multiply(BigDecimal.valueOf(trades.length))));
-    assertThat(holding.getBookValue(),
-        equalTo(lastTrade.getCashFlow().multiply(BigDecimal.valueOf(trades.length))));
+    assertThat(holdings, hasSize(2));
+    Holding holdingABC = holdings.stream()
+        .filter(holding -> holding.getAsset().equals(assetABC)).findFirst().get();
+    assertThat(holdingABC.getAsset(),
+        equalTo(abcTrades.get(0).getAsset()));
+    assertThat(holdingABC.getQuantity(),
+        equalTo(abcTrades.get(0).getQuantity().multiply(BigDecimal.valueOf(abcTrades.size()))));
+    assertThat(holdingABC.getBookValue(),
+        equalTo(abcTrades.get(0).getCashFlow().multiply(BigDecimal.valueOf(abcTrades.size()))));
+
+    Holding holdingPOT = holdings.stream()
+        .filter(holding -> holding.getAsset().equals(assetPOT)).findFirst().get();
+    assertThat(holdingPOT.getAsset(),
+        equalTo(potTrades.get(0).getAsset()));
+    assertThat(holdingPOT.getQuantity(),
+        equalTo(potTrades.get(0).getQuantity().multiply(BigDecimal.valueOf(potTrades.size()))));
+    assertThat(holdingPOT.getBookValue(),
+        equalTo(potTrades.get(0).getCashFlow().multiply(BigDecimal.valueOf(potTrades.size()))));
   }
 }
