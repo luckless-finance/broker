@@ -1,6 +1,7 @@
 package org.yafa.api.dto.inbound;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,6 @@ public class Order {
   @NotNull
   ZonedDateTime timestamp;
 
-  @NotNull double quantity;
-  @NotNull double cashFlow;
+  @NotNull BigDecimal quantity;
+  @NotNull BigDecimal cashFlow;
 }

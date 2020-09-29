@@ -1,5 +1,6 @@
 package org.yafa.api.dto.outbound;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,8 @@ class OrderTest {
   Order order;
   String symbol = "FOO";
   CurrencyCode currency = CurrencyCode.CAD;
-  double cashFlow = 123;
-  double quantity = 12.3;
+  BigDecimal cashFlow = BigDecimal.valueOf(123);
+  BigDecimal quantity = BigDecimal.valueOf(12.3);
   ZonedDateTime timestamp = ZonedDateTime.now();
 
   @BeforeEach

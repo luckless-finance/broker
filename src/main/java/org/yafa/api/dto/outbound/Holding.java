@@ -1,6 +1,7 @@
 package org.yafa.api.dto.outbound;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -18,7 +19,7 @@ public class Holding {
   @NotNull
   ZonedDateTime timestamp;
 
-  double quantity;
-  double marketValue;
-  double bookValue;
+  BigDecimal quantity;
+  BigDecimal marketValue;
+  BigDecimal bookValue;
 }

@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.Lists;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -56,10 +57,12 @@ public class AccountService {
     List<Holding> holdings = Lists.newLinkedList();
     for (Entry<Asset, List<Trade>> assetListEntry : tradesByAsset.entrySet()) {
       Asset asset = assetListEntry.getKey();
-      Double quantity =
-          assetListEntry.getValue().stream().map(Trade::getQuantity).reduce(0.0, Double::sum);
-      Double cashFlow =
-          assetListEntry.getValue().stream().map(Trade::getCashFlow).reduce(0.0, Double::sum);
+      BigDecimal quantity =
+          assetListEntry.getValue().stream().map(Trade::getQuantity)
+              .reduce(BigDecimal.ZERO, BigDecimal::add);
+      BigDecimal cashFlow =
+          assetListEntry.getValue().stream().map(Trade::getCashFlow)
+              .reduce(BigDecimal.ZERO, BigDecimal::add);
       holdings.add(
           Holding.builder()
               .asset(asset)

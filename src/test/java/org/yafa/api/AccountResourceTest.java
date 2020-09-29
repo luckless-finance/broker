@@ -11,6 +11,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -115,8 +116,9 @@ class AccountResourceTest {
   Trade generateTrade(Asset asset) {
     return Trade.builder()
         .asset(asset)
-        .cashFlow(123.0)
-        .quantity(12.30)
+        .cashFlow(BigDecimal.valueOf(123.0))
+        .quantity(BigDecimal.valueOf(10))
+        .unitPrice(BigDecimal.valueOf(12.3))
         .timestamp(ZonedDateTime.now())
         .build();
   }
@@ -159,9 +161,8 @@ class AccountResourceTest {
     return Order.builder()
         .timestamp(LocalDateTime.now().atZone(ZoneId.of("UTC")))
         .asset(asset)
-        .cashFlow(123.0)
-        .quantity(12.3)
-        .quantity(10)
+        .cashFlow(BigDecimal.valueOf(123.0))
+        .quantity(BigDecimal.valueOf(10))
         .build();
   }
 
@@ -220,7 +221,7 @@ class AccountResourceTest {
   }
 
   @Test
-  void listHoldings() {
+  void listHolding() {
     org.yafa.api.dto.outbound.Trade trade = createTrade();
     Response response =
         given()
@@ -241,5 +242,34 @@ class AccountResourceTest {
     assertThat(holding.getAsset(), equalTo(trade.getAsset()));
     assertThat(holding.getQuantity(), equalTo(trade.getQuantity()));
     assertThat(holding.getBookValue(), equalTo(trade.getCashFlow()));
+  }
+
+  @Test
+  void listHoldings() {
+    org.yafa.api.dto.outbound.Trade[] trades = new org.yafa.api.dto.outbound.Trade[]{createTrade(),
+        createTrade(), createTrade()};
+    org.yafa.api.dto.outbound.Trade lastTrade = trades[trades.length - 1];
+
+    Response response =
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("accountId", serverAccount.getId())
+            .queryParam("timestamp", lastTrade.getTimestamp().format(Config.TIME_STAMP_FORMATTER))
+            .when()
+            .get("/{accountId}/holdings")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    List<org.yafa.api.dto.outbound.Holding> holdings =
+        response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Holding.class);
+
+    assertThat(holdings, hasSize(1));
+    Holding holding = holdings.get(0);
+    assertThat(holding.getAsset(), equalTo(lastTrade.getAsset()));
+    assertThat(holding.getQuantity(),
+        equalTo(lastTrade.getQuantity().multiply(BigDecimal.valueOf(trades.length))));
+    assertThat(holding.getBookValue(),
+        equalTo(lastTrade.getCashFlow().multiply(BigDecimal.valueOf(trades.length))));
   }
 }
