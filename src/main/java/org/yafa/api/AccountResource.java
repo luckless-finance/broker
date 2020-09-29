@@ -2,7 +2,6 @@ package org.yafa.api;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.ClientErrorException;
@@ -13,10 +12,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import org.yafa.annotations.DateFormat;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.yafa.api.dto.inbound.Account;
 import org.yafa.api.dto.inbound.Trade;
 import org.yafa.api.dto.outbound.Holding;
@@ -25,6 +24,7 @@ import org.yafa.services.AccountService;
 
 /** FIXME timestamps are returned at arrays */
 @Path("/accounts")
+@Tag(name = "Accounts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AccountResource {
@@ -32,6 +32,7 @@ public class AccountResource {
   @Inject AccountService accountService;
 
   @POST
+  @Operation(summary = "create new Account")
   public org.yafa.api.dto.outbound.Account create(@Valid Account account) {
     try {
       return accountService.create(account);
@@ -58,13 +59,6 @@ public class AccountResource {
   }
 
   @POST
-  @Path("/{accountId}/cash")
-  public org.yafa.api.dto.outbound.Order cashFlow(
-      @PathParam("accountId") String accountId, @Valid org.yafa.api.dto.inbound.Order order) {
-    return accountService.submitOrder(accountService.getAccount(accountId), order);
-  }
-
-  @POST
   @Path("/{accountId}/orders")
   public org.yafa.api.dto.outbound.Order submitOrder(
       @PathParam("accountId") String accountId, @Valid org.yafa.api.dto.inbound.Order order) {
@@ -78,6 +72,13 @@ public class AccountResource {
     return accountService.listOrders(accountService.getAccount(accountId));
   }
 
+  @POST
+  @Path("/{accountId}/trades")
+  public org.yafa.api.dto.outbound.Trade recordTrade(
+      @PathParam("accountId") String accountId, @Valid Trade trade) {
+    return accountService.recordTrade(accountService.getAccount(accountId), trade);
+  }
+
   @GET
   @Path("/{accountId}/trades")
   public Collection<Trade> listTrades(@PathParam("accountId") String accountId) {
@@ -86,10 +87,7 @@ public class AccountResource {
 
   @GET
   @Path("/{accountId}/holdings")
-  public Collection<Holding> listHoldings(
-      @PathParam("accountId") String accountId,
-      @DateFormat @QueryParam("timestamp") Date timestamp) {
-    return accountService.listHoldings(
-        accountService.getAccount(accountId), LocalDateTime.from(timestamp.toInstant()));
+  public Collection<Holding> listHoldings(@PathParam("accountId") String accountId) {
+    return accountService.listHoldings(accountService.getAccount(accountId), LocalDateTime.now());
   }
 }

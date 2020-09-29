@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.wildfly.common.Assert.assertNotNull;
 
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -11,17 +12,24 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.yafa.api.dto.Asset;
 import org.yafa.api.dto.CurrencyCode;
 import org.yafa.api.dto.inbound.Account;
+import org.yafa.api.dto.inbound.Order;
+import org.yafa.api.dto.inbound.OrderStatus;
 import org.yafa.api.dto.inbound.Trade;
+import org.yafa.api.dto.outbound.Holding;
 
 @QuarkusTest
 @TestHTTPEndpoint(AccountResource.class)
+@Slf4j
 class AccountResourceTest {
 
   Account account;
@@ -96,36 +104,142 @@ class AccountResourceTest {
   }
 
   @Test
-  void listTrades() {
-    Trade trade =
-        Trade.builder()
-            .asset(Asset.builder().currency(CurrencyCode.AFN).symbol("POT").build())
-            .cashFlow(123.0)
-            .quantity(12.30)
-            .timestamp(LocalDateTime.now())
-            .build();
-    //
-    //    Response response =
-    //        given()
-    //            .contentType(ContentType.JSON)
-    //            .pathParam("accountId", serverAccount.getId())
-    //            .when()
-    //            .body(trade)
-    //            .post("/{accountId}/trades")
-    //            .then()
-    //            .statusCode(200)
-    //            .extract()
-    //            .response();
-    //    response.as(org.yafa.api.dto.outbound.Trade.class);
+  void listTrades() {}
 
+  Asset generateAsset() {
+    return Asset.builder().symbol("POT").currency(CurrencyCode.AED).build();
+  }
+
+  Trade generateTrade(Asset asset) {
+    return Trade.builder()
+        .asset(asset)
+        .cashFlow(123.0)
+        .quantity(12.30)
+        .timestamp(LocalDateTime.now())
+        .build();
+  }
+
+  Trade generateTrade() {
+    return generateTrade(generateAsset());
+  }
+
+  org.yafa.api.dto.outbound.Trade createTrade(Trade trade) {
+    Response response =
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("accountId", serverAccount.getId())
+            .when()
+            .body(trade)
+            .post("/{accountId}/trades")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    return response.as(org.yafa.api.dto.outbound.Trade.class);
+  }
+
+  org.yafa.api.dto.outbound.Trade createTrade() {
+    return createTrade(generateTrade());
   }
 
   @Test
-  void listHoldings() {}
+  void recordTrade() {
+    Trade trade = generateTrade();
+    org.yafa.api.dto.outbound.Trade serverTrade = createTrade(trade);
+
+    assertThat(trade.getAsset(), equalTo(serverTrade.getAsset()));
+    assertThat(trade.getCashFlow(), equalTo(serverTrade.getCashFlow()));
+    assertThat(trade.getQuantity(), equalTo(serverTrade.getQuantity()));
+    assertThat(trade.getUnitPrice(), equalTo(serverTrade.getUnitPrice()));
+  }
+
+  Order generateOrder(@NotNull Asset asset) {
+    return Order.builder()
+        .timestamp(LocalDateTime.now())
+        .asset(asset)
+        .cashFlow(123.0)
+        .quantity(12.3)
+        .quantity(10)
+        .build();
+  }
+
+  Order generateOrder() {
+    return generateOrder(generateAsset());
+  }
+
+  org.yafa.api.dto.outbound.Order createOrder(Order order) {
+    Response response =
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("accountId", serverAccount.getId())
+            .when()
+            .body(order)
+            .post("/{accountId}/orders")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    return response.as(org.yafa.api.dto.outbound.Order.class);
+  }
+
+  org.yafa.api.dto.outbound.Order createOrder() {
+    return createOrder(generateOrder());
+  }
 
   @Test
-  void submitOrder() {}
+  void submitOrder() {
+    Order order = generateOrder();
+    org.yafa.api.dto.outbound.Order serverOrder = createOrder(order);
+    assertThat(serverOrder.getOrderStatus(), equalTo(OrderStatus.COMPLETE));
+    assertThat(order.getAsset(), equalTo(serverOrder.getAsset()));
+    assertThat(order.getCashFlow(), equalTo(serverOrder.getCashFlow()));
+    assertThat(order.getQuantity(), equalTo(serverOrder.getQuantity()));
+    assertThat(order.getTimestamp(), equalTo(serverOrder.getTimestamp()));
+  }
 
   @Test
-  void listOrders() {}
+  void listOrders() {
+    org.yafa.api.dto.outbound.Order[] serverOrders =
+        new org.yafa.api.dto.outbound.Order[] {createOrder(), createOrder(), createOrder()};
+
+    Response response =
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("accountId", serverAccount.getId())
+            .when()
+            .get("/{accountId}/orders")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    List<org.yafa.api.dto.outbound.Order> accounts =
+        response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Order.class);
+    assertThat(accounts, containsInAnyOrder(serverOrders));
+  }
+
+  @Test
+  void listHoldings() {
+    org.yafa.api.dto.outbound.Trade trade = createTrade();
+    String timestamp = trade.getTimestamp().toLocalDate().format(DateTimeFormatter.ISO_DATE);
+    log.debug("timestamp: {}", timestamp);
+    Response response =
+        given()
+            .contentType(ContentType.JSON)
+            .pathParam("accountId", serverAccount.getId())
+            .queryParam("timestamp", timestamp)
+            .when()
+            .get("/{accountId}/holdings")
+            .then()
+            .statusCode(200)
+            .extract()
+            .response();
+    List<org.yafa.api.dto.outbound.Holding> holdings =
+        response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Holding.class);
+
+    assertThat(holdings, hasSize(1));
+    Holding holding = holdings.get(0);
+    assertThat(holding.getAsset(), equalTo(trade.getAsset()));
+    assertThat(holding.getQuantity(), equalTo(trade.getQuantity()));
+    assertThat(holding.getBookValue(), equalTo(trade.getCashFlow()));
+  }
 }
