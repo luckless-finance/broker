@@ -1,12 +1,14 @@
 package org.yafa.api.dto.inbound;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.yafa.api.dto.Asset;
+import org.yafa.api.dto.Config;
 
 @Data
 @SuperBuilder
@@ -15,7 +17,11 @@ import org.yafa.api.dto.Asset;
 public class Order {
 
   @NotNull Asset asset;
-  @NotNull LocalDateTime timestamp;
+
+  @JsonFormat(pattern = Config.TIME_STAMP_PATTERN)
+  @NotNull
+  ZonedDateTime timestamp;
+
   @NotNull double quantity;
   @NotNull double cashFlow;
 }

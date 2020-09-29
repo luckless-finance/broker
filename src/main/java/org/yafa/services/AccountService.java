@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.Lists;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +48,7 @@ public class AccountService {
   }
 
   public Collection<Holding> listHoldings(
-      org.yafa.api.dto.outbound.Account account, LocalDateTime timestamp) {
-    timestamp = LocalDateTime.now();
+      org.yafa.api.dto.outbound.Account account, ZonedDateTime timestamp) {
     log.error(timestamp.toString());
     Collection<Trade> trades = stateStore.getTrades(account);
     Map<Asset, List<Trade>> tradesByAsset =

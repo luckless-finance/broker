@@ -1,6 +1,6 @@
 package org.yafa.api.dto.outbound;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ class OrderTest {
   CurrencyCode currency = CurrencyCode.CAD;
   double cashFlow = 123;
   double quantity = 12.3;
-  LocalDateTime timestamp = LocalDateTime.now();
+  ZonedDateTime timestamp = ZonedDateTime.now();
 
   @BeforeEach
   public void setup() {
@@ -40,7 +40,7 @@ class OrderTest {
     Assertions.assertEquals(order, equivalentOrder);
     Assertions.assertEquals(order.hashCode(), equivalentOrder.hashCode());
 
-    LocalDateTime differentTimestamp = LocalDateTime.now();
+    ZonedDateTime differentTimestamp = ZonedDateTime.now();
     Order differentOrder =
         Order.builder()
             .asset(Asset.builder().symbol(symbol).currency(currency).build())

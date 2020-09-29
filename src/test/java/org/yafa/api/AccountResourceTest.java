@@ -12,7 +12,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.yafa.api.dto.Asset;
+import org.yafa.api.dto.Config;
 import org.yafa.api.dto.CurrencyCode;
 import org.yafa.api.dto.inbound.Account;
 import org.yafa.api.dto.inbound.Order;
@@ -115,7 +117,7 @@ class AccountResourceTest {
         .asset(asset)
         .cashFlow(123.0)
         .quantity(12.30)
-        .timestamp(LocalDateTime.now())
+        .timestamp(ZonedDateTime.now())
         .build();
   }
 
@@ -155,7 +157,7 @@ class AccountResourceTest {
 
   Order generateOrder(@NotNull Asset asset) {
     return Order.builder()
-        .timestamp(LocalDateTime.now())
+        .timestamp(LocalDateTime.now().atZone(ZoneId.of("UTC")))
         .asset(asset)
         .cashFlow(123.0)
         .quantity(12.3)
@@ -220,13 +222,11 @@ class AccountResourceTest {
   @Test
   void listHoldings() {
     org.yafa.api.dto.outbound.Trade trade = createTrade();
-    String timestamp = trade.getTimestamp().toLocalDate().format(DateTimeFormatter.ISO_DATE);
-    log.debug("timestamp: {}", timestamp);
     Response response =
         given()
             .contentType(ContentType.JSON)
             .pathParam("accountId", serverAccount.getId())
-            .queryParam("timestamp", timestamp)
+            .queryParam("timestamp", trade.getTimestamp().format(Config.TIME_STAMP_FORMATTER))
             .when()
             .get("/{accountId}/holdings")
             .then()

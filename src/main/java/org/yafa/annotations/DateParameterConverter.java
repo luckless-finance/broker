@@ -1,50 +1,54 @@
 package org.yafa.annotations;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ParamConverter;
+import lombok.extern.slf4j.Slf4j;
 
-public class DateParameterConverter implements ParamConverter<LocalDateTime> {
+@Slf4j
+public class DateParameterConverter implements ParamConverter<ZonedDateTime> {
 
   public static final String DEFAULT_FORMAT = DateTimeFormat.DEFAULT_DATE_TIME;
-
+  public static final DateTimeFormatter DEFAULT_FORMATTER =
+      DateTimeFormatter.ofPattern(DEFAULT_FORMAT);
   private DateTimeFormat customDateTimeFormat;
-  private DateFormat customDateFormat;
-
-  public void setCustomDateFormat(DateFormat customDateFormat) {
-    this.customDateFormat = customDateFormat;
-  }
+  private DateTimeFormatter customDateFormatter;
 
   public void setCustomDateTimeFormat(DateTimeFormat customDateTimeFormat) {
     this.customDateTimeFormat = customDateTimeFormat;
+    this.customDateFormatter = DateTimeFormatter.ofPattern(customDateTimeFormat.value());
+    this.customDateFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
   }
 
   @Override
-  public LocalDateTime fromString(String string) {
-    String format = DEFAULT_FORMAT;
-    if (customDateFormat != null) {
-      format = customDateFormat.value();
-    } else if (customDateTimeFormat != null) {
-      format = customDateTimeFormat.value();
+  public ZonedDateTime fromString(String string) {
+    DateTimeFormatter formatter = DEFAULT_FORMATTER;
+    if (customDateFormatter != null) {
+      formatter = customDateFormatter;
     }
-
-    final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(format);
-
     try {
-      return LocalDateTime.from(dateTimeFormatter.parse(string));
-      //      return LocalDateTime.ofInstant(simpleDateFormat.parse(string).toInstant(),
-      // simpleDateFormat.parse(string).);
+      return ZonedDateTime.from(formatter.parse(string));
+    } catch (DateTimeParseException ex) {
+      log.error("error parsing datetime: {}", string);
+      throw new ClientErrorException(
+          String.format("error parsing datetime: %s", string), Status.fromStatusCode(422));
+    }
+  }
+
+  @Override
+  public String toString(ZonedDateTime timestamp) {
+    DateTimeFormatter formatter = DEFAULT_FORMATTER;
+    if (customDateFormatter != null) {
+      formatter = customDateFormatter;
+    }
+    try {
+      return timestamp.format(formatter);
     } catch (DateTimeParseException ex) {
       throw new WebApplicationException(ex);
     }
-  }
-
-  @Override
-  public String toString(LocalDateTime date) {
-    return new SimpleDateFormat(DEFAULT_FORMAT).format(date);
   }
 }

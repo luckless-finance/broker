@@ -1,6 +1,6 @@
 package org.yafa.api;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -12,10 +12,13 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.yafa.annotations.DateTimeFormat;
 import org.yafa.api.dto.inbound.Account;
 import org.yafa.api.dto.inbound.Trade;
 import org.yafa.api.dto.outbound.Holding;
@@ -23,6 +26,7 @@ import org.yafa.exceptions.ConflictException;
 import org.yafa.services.AccountService;
 
 /** FIXME timestamps are returned at arrays */
+@Slf4j
 @Path("/accounts")
 @Tag(name = "Accounts")
 @Produces(MediaType.APPLICATION_JSON)
@@ -87,7 +91,9 @@ public class AccountResource {
 
   @GET
   @Path("/{accountId}/holdings")
-  public Collection<Holding> listHoldings(@PathParam("accountId") String accountId) {
-    return accountService.listHoldings(accountService.getAccount(accountId), LocalDateTime.now());
+  public Collection<Holding> listHoldings(
+      @PathParam("accountId") String accountId,
+      @DateTimeFormat @QueryParam("timestamp") ZonedDateTime timestamp) {
+    return accountService.listHoldings(accountService.getAccount(accountId), ZonedDateTime.now());
   }
 }

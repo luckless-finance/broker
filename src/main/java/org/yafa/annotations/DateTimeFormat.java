@@ -6,6 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import org.yafa.api.dto.Config;
 
 /**
  * @see <a
@@ -16,7 +17,7 @@ import java.lang.annotation.Target;
 @Target({FIELD, PARAMETER})
 public @interface DateTimeFormat {
 
-  String DEFAULT_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ";
+  String DEFAULT_DATE_TIME = Config.TIME_STAMP_PATTERN;
 
   String value() default DEFAULT_DATE_TIME;
 }
