@@ -290,6 +290,24 @@ class AccountsResourceTest {
   }
 
   @Test
+  void listHoldingBadTimestamp() {
+
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
+    String badTimestamp = "not a valid timestamp";
+
+    ServerSideTrade trade = createTrade(serverSideAccount, generateTrade());
+    given()
+        .contentType(ContentType.JSON)
+        .pathParam("accountId", serverSideAccount.getId())
+        .queryParam("timestamp", badTimestamp)
+        .when()
+        .get("/{accountId}/holdings")
+        .then()
+        .statusCode(Status.NOT_FOUND.getStatusCode());
+  }
+
+  @Test
   void listHoldings() {
     ClientSideAccount clientSideAccount = generateAccount();
     ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
