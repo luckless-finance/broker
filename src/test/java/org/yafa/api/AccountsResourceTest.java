@@ -40,7 +40,6 @@ import org.yafa.api.dto.outbound.ServerSideTrade;
 @Slf4j
 class AccountsResourceTest {
 
-
   ClientSideAccount generateAccount() {
     return ClientSideAccount.builder().name("some account" + UUID.randomUUID().toString()).build();
   }
@@ -62,7 +61,6 @@ class AccountsResourceTest {
   ServerSideAccount createAccount() {
     return createAccount(generateAccount());
   }
-
 
   @Test
   void create() {
@@ -111,8 +109,7 @@ class AccountsResourceTest {
             .statusCode(200)
             .extract()
             .response();
-    ServerSideAccount gotServerSideAccount =
-        response.as(ServerSideAccount.class);
+    ServerSideAccount gotServerSideAccount = response.as(ServerSideAccount.class);
     assertThat(gotServerSideAccount.getName(), equalTo(serverSideAccount.getName()));
     assertThat(gotServerSideAccount.getId(), equalTo(serverSideAccount.getId()));
   }
@@ -121,7 +118,7 @@ class AccountsResourceTest {
   void listAccounts() {
 
     ServerSideAccount[] serverSideAccounts =
-        new ServerSideAccount[]{createAccount(), createAccount(), createAccount()};
+        new ServerSideAccount[] {createAccount(), createAccount(), createAccount()};
 
     Response response =
         given()
@@ -140,8 +137,7 @@ class AccountsResourceTest {
   }
 
   @Test
-  void listTrades() {
-  }
+  void listTrades() {}
 
   Asset generateAsset() {
     return Asset.builder().symbol("POT").currency(CurrencyCode.AED).build();
@@ -161,8 +157,8 @@ class AccountsResourceTest {
     return generateTrade(generateAsset());
   }
 
-  ServerSideTrade createTrade(ServerSideAccount serverSideAccount,
-      ClientSideTrade clientSideTrade) {
+  ServerSideTrade createTrade(
+      ServerSideAccount serverSideAccount, ClientSideTrade clientSideTrade) {
 
     Response response =
         given()
@@ -207,8 +203,8 @@ class AccountsResourceTest {
     return generateOrder(generateAsset());
   }
 
-  ServerSideOrder createOrder(ServerSideAccount serverSideAccount,
-      ClientSideOrder clientSideOrder) {
+  ServerSideOrder createOrder(
+      ServerSideAccount serverSideAccount, ClientSideOrder clientSideOrder) {
     Response response =
         given()
             .contentType(ContentType.JSON)
@@ -245,10 +241,11 @@ class AccountsResourceTest {
     ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
 
     ServerSideOrder[] serverSideOrders =
-        new ServerSideOrder[]{
-            createOrder(serverSideAccount, generateOrder()),
-            createOrder(serverSideAccount, generateOrder()),
-            createOrder(serverSideAccount, generateOrder())};
+        new ServerSideOrder[] {
+          createOrder(serverSideAccount, generateOrder()),
+          createOrder(serverSideAccount, generateOrder()),
+          createOrder(serverSideAccount, generateOrder())
+        };
 
     Response response =
         given()
@@ -260,8 +257,7 @@ class AccountsResourceTest {
             .statusCode(200)
             .extract()
             .response();
-    List<ServerSideOrder> accounts =
-        response.body().jsonPath().getList(".", ServerSideOrder.class);
+    List<ServerSideOrder> accounts = response.body().jsonPath().getList(".", ServerSideOrder.class);
     assertThat(accounts, containsInAnyOrder(serverSideOrders));
   }
 
@@ -297,20 +293,15 @@ class AccountsResourceTest {
   void listHoldings() {
     ClientSideAccount clientSideAccount = generateAccount();
     ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
-    Asset assetPOT = Asset.builder()
-        .symbol("POT")
-        .currency(CurrencyCode.AED)
-        .build();
-    Asset assetABC = Asset.builder()
-        .symbol("ABC")
-        .currency(CurrencyCode.AED)
-        .build();
+    Asset assetPOT = Asset.builder().symbol("POT").currency(CurrencyCode.AED).build();
+    Asset assetABC = Asset.builder().symbol("ABC").currency(CurrencyCode.AED).build();
 
-    ServerSideTrade[] trades = new ServerSideTrade[]{
-        createTrade(serverSideAccount, generateTrade(assetABC)),
-        createTrade(serverSideAccount, generateTrade(assetPOT)),
-        createTrade(serverSideAccount, generateTrade(assetABC))
-    };
+    ServerSideTrade[] trades =
+        new ServerSideTrade[] {
+          createTrade(serverSideAccount, generateTrade(assetABC)),
+          createTrade(serverSideAccount, generateTrade(assetPOT)),
+          createTrade(serverSideAccount, generateTrade(assetABC))
+        };
 
     List<ServerSideTrade> abcTrades = Arrays.asList(trades[0], trades[2]);
     List<ServerSideTrade> potTrades = Arrays.asList(trades[1]);
@@ -330,22 +321,24 @@ class AccountsResourceTest {
         response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Holding.class);
 
     assertThat(holdings, hasSize(2));
-    Holding holdingABC = holdings.stream()
-        .filter(holding -> holding.getAsset().equals(assetABC)).findFirst().get();
-    assertThat(holdingABC.getAsset(),
-        equalTo(abcTrades.get(0).getAsset()));
-    assertThat(holdingABC.getQuantity(),
+    Holding holdingABC =
+        holdings.stream().filter(holding -> holding.getAsset().equals(assetABC)).findFirst().get();
+    assertThat(holdingABC.getAsset(), equalTo(abcTrades.get(0).getAsset()));
+    assertThat(
+        holdingABC.getQuantity(),
         equalTo(abcTrades.get(0).getQuantity().multiply(BigDecimal.valueOf(abcTrades.size()))));
-    assertThat(holdingABC.getBookValue(),
+    assertThat(
+        holdingABC.getBookValue(),
         equalTo(abcTrades.get(0).getCashFlow().multiply(BigDecimal.valueOf(abcTrades.size()))));
 
-    Holding holdingPOT = holdings.stream()
-        .filter(holding -> holding.getAsset().equals(assetPOT)).findFirst().get();
-    assertThat(holdingPOT.getAsset(),
-        equalTo(potTrades.get(0).getAsset()));
-    assertThat(holdingPOT.getQuantity(),
+    Holding holdingPOT =
+        holdings.stream().filter(holding -> holding.getAsset().equals(assetPOT)).findFirst().get();
+    assertThat(holdingPOT.getAsset(), equalTo(potTrades.get(0).getAsset()));
+    assertThat(
+        holdingPOT.getQuantity(),
         equalTo(potTrades.get(0).getQuantity().multiply(BigDecimal.valueOf(potTrades.size()))));
-    assertThat(holdingPOT.getBookValue(),
+    assertThat(
+        holdingPOT.getBookValue(),
         equalTo(potTrades.get(0).getCashFlow().multiply(BigDecimal.valueOf(potTrades.size()))));
   }
 }

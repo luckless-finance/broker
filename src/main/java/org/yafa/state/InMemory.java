@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.yafa.api.dto.Id;
 import org.yafa.api.dto.inbound.ClientSideAccount;
 import org.yafa.api.dto.inbound.ClientSideOrder;
-import org.yafa.api.dto.inbound.OrderStatus;
 import org.yafa.api.dto.inbound.ClientSideTrade;
+import org.yafa.api.dto.inbound.OrderStatus;
 import org.yafa.api.dto.outbound.ServerSideAccount;
 import org.yafa.api.dto.outbound.ServerSideOrder;
 import org.yafa.api.dto.outbound.ServerSideTrade;
@@ -84,10 +84,7 @@ public class InMemory implements StateStore {
   }
 
   private ServerSideAccount withId(ClientSideAccount clientSideAccount) {
-    return ServerSideAccount.builder()
-        .id(Id.create())
-        .name(clientSideAccount.getName())
-        .build();
+    return ServerSideAccount.builder().id(Id.create()).name(clientSideAccount.getName()).build();
   }
 
   @Override

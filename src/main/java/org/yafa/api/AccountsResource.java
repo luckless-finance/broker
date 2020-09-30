@@ -46,7 +46,8 @@ public class AccountsResource {
       return accountService.create(clientSideAccount);
     } catch (ConflictException e) {
       // TODO add accountId to error message
-      throw new ClientErrorException(clientSideAccount.getName() + " already exists.", Status.CONFLICT);
+      throw new ClientErrorException(
+          clientSideAccount.getName() + " already exists.", Status.CONFLICT);
     }
   }
 
@@ -75,8 +76,7 @@ public class AccountsResource {
 
   @GET
   @Path("/{accountId}/orders")
-  public Collection<ServerSideOrder> listOrders(
-      @PathParam("accountId") String accountId) {
+  public Collection<ServerSideOrder> listOrders(@PathParam("accountId") String accountId) {
     return accountService.listOrders(accountService.getAccount(accountId));
   }
 

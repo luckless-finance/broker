@@ -61,10 +61,12 @@ public class AccountService {
     for (Entry<Asset, List<ClientSideTrade>> assetListEntry : tradesByAsset.entrySet()) {
       Asset asset = assetListEntry.getKey();
       BigDecimal quantity =
-          assetListEntry.getValue().stream().map(ClientSideTrade::getQuantity)
+          assetListEntry.getValue().stream()
+              .map(ClientSideTrade::getQuantity)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
       BigDecimal cashFlow =
-          assetListEntry.getValue().stream().map(ClientSideTrade::getCashFlow)
+          assetListEntry.getValue().stream()
+              .map(ClientSideTrade::getCashFlow)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
       holdings.add(
           Holding.builder()
@@ -81,8 +83,8 @@ public class AccountService {
 
   public ServerSideOrder submitOrder(
       ServerSideAccount serverSideAccount, ClientSideOrder clientSideOrder) {
-    resolveOrder(serverSideAccount, clientSideOrder).forEach(trade -> stateStore.saveTrade(
-        serverSideAccount, trade));
+    resolveOrder(serverSideAccount, clientSideOrder)
+        .forEach(trade -> stateStore.saveTrade(serverSideAccount, trade));
     return stateStore.saveOrder(serverSideAccount, clientSideOrder);
   }
 
