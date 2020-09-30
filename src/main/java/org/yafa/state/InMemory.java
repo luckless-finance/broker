@@ -8,10 +8,13 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Default;
 import lombok.extern.slf4j.Slf4j;
 import org.yafa.api.dto.Id;
-import org.yafa.api.dto.inbound.Account;
+import org.yafa.api.dto.inbound.ClientSideAccount;
+import org.yafa.api.dto.inbound.ClientSideOrder;
 import org.yafa.api.dto.inbound.OrderStatus;
-import org.yafa.api.dto.inbound.Trade;
-import org.yafa.api.dto.outbound.Order;
+import org.yafa.api.dto.inbound.ClientSideTrade;
+import org.yafa.api.dto.outbound.ServerSideAccount;
+import org.yafa.api.dto.outbound.ServerSideOrder;
+import org.yafa.api.dto.outbound.ServerSideTrade;
 import org.yafa.exceptions.ConflictException;
 import org.yafa.exceptions.NotFoundException;
 
@@ -20,37 +23,37 @@ import org.yafa.exceptions.NotFoundException;
 @Slf4j
 public class InMemory implements StateStore {
 
-  Map<String, org.yafa.api.dto.outbound.Account> accountsByName = Maps.newHashMap();
-  Map<String, org.yafa.api.dto.outbound.Account> accounts = Maps.newHashMap();
-  Map<org.yafa.api.dto.outbound.Account, Map<String, Order>> orders = Maps.newHashMap();
-  Map<org.yafa.api.dto.outbound.Account, Map<String, Trade>> trades = Maps.newHashMap();
+  Map<String, ServerSideAccount> accountsByName = Maps.newHashMap();
+  Map<String, ServerSideAccount> accounts = Maps.newHashMap();
+  Map<ServerSideAccount, Map<String, ServerSideOrder>> orders = Maps.newHashMap();
+  Map<ServerSideAccount, Map<String, ClientSideTrade>> trades = Maps.newHashMap();
 
-  private Optional<org.yafa.api.dto.outbound.Account> findByName(String name) {
+  private Optional<ServerSideAccount> findByName(String name) {
     return accounts.values().stream().filter(account -> account.getName().equals(name)).findFirst();
   }
 
   @Override
-  public org.yafa.api.dto.outbound.Account createAccount(Account account) {
-    log.debug("creating account: {}", account.getName());
-    Optional<org.yafa.api.dto.outbound.Account> foundAccount = findByName(account.getName());
+  public ServerSideAccount createAccount(ClientSideAccount clientSideAccount) {
+    log.debug("creating account: {}", clientSideAccount.getName());
+    Optional<ServerSideAccount> foundAccount = findByName(clientSideAccount.getName());
     if (foundAccount.isPresent()) {
       throw new ConflictException("Account: " + foundAccount.get().toString() + " already exists");
     } else {
-      org.yafa.api.dto.outbound.Account persistedAccount = withId(account);
-      accounts.put(persistedAccount.getId(), persistedAccount);
-      trades.put(persistedAccount, Maps.newHashMap());
-      orders.put(persistedAccount, Maps.newHashMap());
-      return getAccount(persistedAccount.getId());
+      ServerSideAccount serverSideAccount = withId(clientSideAccount);
+      accounts.put(serverSideAccount.getId(), serverSideAccount);
+      trades.put(serverSideAccount, Maps.newHashMap());
+      orders.put(serverSideAccount, Maps.newHashMap());
+      return getAccount(serverSideAccount.getId());
     }
   }
 
   @Override
-  public Collection<org.yafa.api.dto.outbound.Account> getAccounts() {
+  public Collection<ServerSideAccount> getAccounts() {
     return accounts.values();
   }
 
   @Override
-  public org.yafa.api.dto.outbound.Account getAccount(String accountId) {
+  public ServerSideAccount getAccount(String accountId) {
     if (accounts.containsKey(accountId)) {
       return accounts.get(accountId);
     } else {
@@ -58,62 +61,62 @@ public class InMemory implements StateStore {
     }
   }
 
-  private Order withId(org.yafa.api.dto.inbound.Order order) {
-    return Order.builder()
+  private ServerSideOrder withId(ClientSideOrder clientSideOrder) {
+    return ServerSideOrder.builder()
         .id(Id.create())
         .orderStatus(OrderStatus.COMPLETE)
-        .asset(order.getAsset())
-        .cashFlow(order.getCashFlow())
-        .quantity(order.getQuantity())
-        .timestamp(order.getTimestamp())
+        .asset(clientSideOrder.getAsset())
+        .cashFlow(clientSideOrder.getCashFlow())
+        .quantity(clientSideOrder.getQuantity())
+        .timestamp(clientSideOrder.getTimestamp())
         .build();
   }
 
-  private org.yafa.api.dto.outbound.Trade withId(Trade trade) {
-    return org.yafa.api.dto.outbound.Trade.builder()
+  private ServerSideTrade withId(ClientSideTrade clientSideTrade) {
+    return ServerSideTrade.builder()
         .id(Id.create())
-        .quantity(trade.getQuantity())
-        .unitPrice(trade.getUnitPrice())
-        .cashFlow(trade.getCashFlow())
-        .asset(trade.getAsset())
-        .timestamp(trade.getTimestamp())
+        .quantity(clientSideTrade.getQuantity())
+        .unitPrice(clientSideTrade.getUnitPrice())
+        .cashFlow(clientSideTrade.getCashFlow())
+        .asset(clientSideTrade.getAsset())
+        .timestamp(clientSideTrade.getTimestamp())
         .build();
   }
 
-  private org.yafa.api.dto.outbound.Account withId(org.yafa.api.dto.inbound.Account account) {
-    return org.yafa.api.dto.outbound.Account.builder()
+  private ServerSideAccount withId(ClientSideAccount clientSideAccount) {
+    return ServerSideAccount.builder()
         .id(Id.create())
-        .name(account.getName())
+        .name(clientSideAccount.getName())
         .build();
   }
 
   @Override
-  public Order saveOrder(
-      org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order) {
-    final Order persistedOrder = withId(order);
-    getAccount(account.getId());
-    orders.get(account).put(persistedOrder.getId(), persistedOrder);
-    return persistedOrder;
+  public ServerSideOrder saveOrder(
+      ServerSideAccount serverSideAccount, ClientSideOrder clientSideOrder) {
+    final ServerSideOrder serverSideOrder = withId(clientSideOrder);
+    getAccount(serverSideAccount.getId());
+    orders.get(serverSideAccount).put(serverSideOrder.getId(), serverSideOrder);
+    return serverSideOrder;
   }
 
   @Override
-  public Collection<Order> getOrders(org.yafa.api.dto.outbound.Account account) {
-    getAccount(account.getId());
-    return orders.get(account).values();
+  public Collection<ServerSideOrder> getOrders(ServerSideAccount serverSideAccount) {
+    getAccount(serverSideAccount.getId());
+    return orders.get(serverSideAccount).values();
   }
 
   @Override
-  public Collection<Trade> getTrades(org.yafa.api.dto.outbound.Account account) {
-    getAccount(account.getId());
-    return trades.get(account).values();
+  public Collection<ClientSideTrade> getTrades(ServerSideAccount serverSideAccount) {
+    getAccount(serverSideAccount.getId());
+    return trades.get(serverSideAccount).values();
   }
 
   @Override
-  public org.yafa.api.dto.outbound.Trade saveTrade(
-      org.yafa.api.dto.outbound.Account account, Trade trade) {
-    getAccount(account.getId());
-    org.yafa.api.dto.outbound.Trade tradeWithId = withId(trade);
-    trades.get(account).put(tradeWithId.getId(), tradeWithId);
+  public ServerSideTrade saveTrade(
+      ServerSideAccount serverSideAccount, ClientSideTrade clientSideTrade) {
+    getAccount(serverSideAccount.getId());
+    ServerSideTrade tradeWithId = withId(clientSideTrade);
+    trades.get(serverSideAccount).put(tradeWithId.getId(), tradeWithId);
     return tradeWithId;
   }
 }

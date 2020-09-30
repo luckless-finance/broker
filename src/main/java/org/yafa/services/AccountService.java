@@ -15,10 +15,13 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.yafa.api.dto.Asset;
-import org.yafa.api.dto.inbound.Account;
-import org.yafa.api.dto.inbound.Trade;
+import org.yafa.api.dto.inbound.ClientSideAccount;
+import org.yafa.api.dto.inbound.ClientSideOrder;
+import org.yafa.api.dto.inbound.ClientSideTrade;
 import org.yafa.api.dto.outbound.Holding;
-import org.yafa.api.dto.outbound.Order;
+import org.yafa.api.dto.outbound.ServerSideAccount;
+import org.yafa.api.dto.outbound.ServerSideOrder;
+import org.yafa.api.dto.outbound.ServerSideTrade;
 import org.yafa.state.StateStore;
 
 @Slf4j
@@ -27,41 +30,41 @@ public class AccountService {
 
   @Inject StateStore stateStore;
 
-  public org.yafa.api.dto.outbound.Account create(@Valid Account account) {
-    return stateStore.createAccount(account);
+  public ServerSideAccount create(@Valid ClientSideAccount clientSideAccount) {
+    return stateStore.createAccount(clientSideAccount);
   }
 
-  public Collection<org.yafa.api.dto.outbound.Account> getAccounts() {
+  public Collection<ServerSideAccount> getAccounts() {
     return stateStore.getAccounts();
   }
 
-  public org.yafa.api.dto.outbound.Account getAccount(String accountId) {
+  public ServerSideAccount getAccount(String accountId) {
     return stateStore.getAccount(accountId);
   }
 
-  public Collection<Trade> listTrades(org.yafa.api.dto.outbound.Account account) {
-    return stateStore.getTrades(account);
+  public Collection<ClientSideTrade> listTrades(ServerSideAccount serverSideAccount) {
+    return stateStore.getTrades(serverSideAccount);
   }
 
-  private Collection<Trade> resolveOrder(
-      org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order) {
+  private Collection<ClientSideTrade> resolveOrder(
+      ServerSideAccount serverSideAccount, ClientSideOrder clientSideOrder) {
     return Lists.newLinkedList();
   }
 
   public Collection<Holding> listHoldings(
-      org.yafa.api.dto.outbound.Account account, ZonedDateTime timestamp) {
+      ServerSideAccount serverSideAccount, ZonedDateTime timestamp) {
     log.error(timestamp.toString());
-    Collection<Trade> trades = stateStore.getTrades(account);
-    Map<Asset, List<Trade>> tradesByAsset =
-        trades.stream().collect(groupingBy(Trade::getAsset, toList()));
+    Collection<ClientSideTrade> clientSideTrades = stateStore.getTrades(serverSideAccount);
+    Map<Asset, List<ClientSideTrade>> tradesByAsset =
+        clientSideTrades.stream().collect(groupingBy(ClientSideTrade::getAsset, toList()));
     List<Holding> holdings = Lists.newLinkedList();
-    for (Entry<Asset, List<Trade>> assetListEntry : tradesByAsset.entrySet()) {
+    for (Entry<Asset, List<ClientSideTrade>> assetListEntry : tradesByAsset.entrySet()) {
       Asset asset = assetListEntry.getKey();
       BigDecimal quantity =
-          assetListEntry.getValue().stream().map(Trade::getQuantity)
+          assetListEntry.getValue().stream().map(ClientSideTrade::getQuantity)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
       BigDecimal cashFlow =
-          assetListEntry.getValue().stream().map(Trade::getCashFlow)
+          assetListEntry.getValue().stream().map(ClientSideTrade::getCashFlow)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
       holdings.add(
           Holding.builder()
@@ -76,19 +79,20 @@ public class AccountService {
     return holdings;
   }
 
-  public Order submitOrder(
-      org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order) {
-    resolveOrder(account, order).forEach(trade -> stateStore.saveTrade(account, trade));
-    return stateStore.saveOrder(account, order);
+  public ServerSideOrder submitOrder(
+      ServerSideAccount serverSideAccount, ClientSideOrder clientSideOrder) {
+    resolveOrder(serverSideAccount, clientSideOrder).forEach(trade -> stateStore.saveTrade(
+        serverSideAccount, trade));
+    return stateStore.saveOrder(serverSideAccount, clientSideOrder);
   }
 
-  public Collection<Order> listOrders(org.yafa.api.dto.outbound.Account account) {
-    return stateStore.getOrders(account);
+  public Collection<ServerSideOrder> listOrders(ServerSideAccount serverSideAccount) {
+    return stateStore.getOrders(serverSideAccount);
   }
 
-  public org.yafa.api.dto.outbound.Trade recordTrade(
-      org.yafa.api.dto.outbound.Account account, Trade trade) {
-    log.debug("recording trade: {}", trade.toString());
-    return stateStore.saveTrade(account, trade);
+  public ServerSideTrade recordTrade(
+      ServerSideAccount serverSideAccount, ClientSideTrade clientSideTrade) {
+    log.debug("recording trade: {}", clientSideTrade.toString());
+    return stateStore.saveTrade(serverSideAccount, clientSideTrade);
   }
 }

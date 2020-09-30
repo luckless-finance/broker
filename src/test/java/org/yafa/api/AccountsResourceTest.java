@@ -26,47 +26,50 @@ import org.junit.jupiter.api.Test;
 import org.yafa.api.dto.Asset;
 import org.yafa.api.dto.Config;
 import org.yafa.api.dto.CurrencyCode;
-import org.yafa.api.dto.inbound.Account;
-import org.yafa.api.dto.inbound.Order;
+import org.yafa.api.dto.inbound.ClientSideAccount;
+import org.yafa.api.dto.inbound.ClientSideOrder;
+import org.yafa.api.dto.inbound.ClientSideTrade;
 import org.yafa.api.dto.inbound.OrderStatus;
-import org.yafa.api.dto.inbound.Trade;
 import org.yafa.api.dto.outbound.Holding;
+import org.yafa.api.dto.outbound.ServerSideAccount;
+import org.yafa.api.dto.outbound.ServerSideOrder;
+import org.yafa.api.dto.outbound.ServerSideTrade;
 
 @QuarkusTest
-@TestHTTPEndpoint(AccountResource.class)
+@TestHTTPEndpoint(AccountsResource.class)
 @Slf4j
-class AccountResourceTest {
+class AccountsResourceTest {
 
 
-  Account generateAccount() {
-    return Account.builder().name("some account" + UUID.randomUUID().toString()).build();
+  ClientSideAccount generateAccount() {
+    return ClientSideAccount.builder().name("some account" + UUID.randomUUID().toString()).build();
   }
 
-  org.yafa.api.dto.outbound.Account createAccount(Account account) {
+  ServerSideAccount createAccount(ClientSideAccount clientSideAccount) {
     Response response =
         given()
             .contentType(ContentType.JSON)
             .when()
-            .body(account)
+            .body(clientSideAccount)
             .post()
             .then()
             .statusCode(200)
             .extract()
             .response();
-    return response.as(org.yafa.api.dto.outbound.Account.class);
+    return response.as(ServerSideAccount.class);
   }
 
-  org.yafa.api.dto.outbound.Account createAccount() {
+  ServerSideAccount createAccount() {
     return createAccount(generateAccount());
   }
 
 
   @Test
   void create() {
-    Account account = generateAccount();
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount(account);
-    assertThat(account.getName(), equalTo(serverAccount.getName()));
-    assertNotNull(serverAccount.getId());
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
+    assertThat(clientSideAccount.getName(), equalTo(serverSideAccount.getName()));
+    assertNotNull(serverSideAccount.getId());
   }
 
   @Test
@@ -82,12 +85,12 @@ class AccountResourceTest {
 
   @Test
   void accountConflict() {
-    Account account = generateAccount();
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount(account);
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
     given()
         .contentType(ContentType.JSON)
         .when()
-        .body(account)
+        .body(clientSideAccount)
         .post()
         .then()
         .statusCode(Status.CONFLICT.getStatusCode());
@@ -96,29 +99,29 @@ class AccountResourceTest {
   @Test
   void getAccount() {
 
-    Account account = generateAccount();
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount(account);
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
     Response response =
         given()
             .contentType(ContentType.JSON)
             .when()
-            .pathParam("accountId", serverAccount.getId())
+            .pathParam("accountId", serverSideAccount.getId())
             .get("/{accountId}")
             .then()
             .statusCode(200)
             .extract()
             .response();
-    org.yafa.api.dto.outbound.Account gotServerAccount =
-        response.as(org.yafa.api.dto.outbound.Account.class);
-    assertThat(gotServerAccount.getName(), equalTo(serverAccount.getName()));
-    assertThat(gotServerAccount.getId(), equalTo(serverAccount.getId()));
+    ServerSideAccount gotServerSideAccount =
+        response.as(ServerSideAccount.class);
+    assertThat(gotServerSideAccount.getName(), equalTo(serverSideAccount.getName()));
+    assertThat(gotServerSideAccount.getId(), equalTo(serverSideAccount.getId()));
   }
 
   @Test
   void listAccounts() {
 
-    org.yafa.api.dto.outbound.Account[] createdAccounts =
-        new org.yafa.api.dto.outbound.Account[]{createAccount(), createAccount(), createAccount()};
+    ServerSideAccount[] serverSideAccounts =
+        new ServerSideAccount[]{createAccount(), createAccount(), createAccount()};
 
     Response response =
         given()
@@ -129,22 +132,23 @@ class AccountResourceTest {
             .statusCode(200)
             .extract()
             .response();
-    List<org.yafa.api.dto.outbound.Account> accounts =
-        response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Account.class);
-    assertTrue(accounts.containsAll(Arrays.asList(createdAccounts)));
+    List<ServerSideAccount> gotServerSideAccounts =
+        response.body().jsonPath().getList(".", ServerSideAccount.class);
+    assertTrue(gotServerSideAccounts.containsAll(Arrays.asList(serverSideAccounts)));
     // TODO: why does this fail? but above passes?
     //  assertThat(accounts, containsInAnyOrder(Arrays.asList(createdAccounts)));
   }
 
   @Test
-  void listTrades() {}
+  void listTrades() {
+  }
 
   Asset generateAsset() {
     return Asset.builder().symbol("POT").currency(CurrencyCode.AED).build();
   }
 
-  Trade generateTrade(Asset asset) {
-    return Trade.builder()
+  ClientSideTrade generateTrade(Asset asset) {
+    return ClientSideTrade.builder()
         .asset(asset)
         .cashFlow(BigDecimal.valueOf(123.0))
         .quantity(BigDecimal.valueOf(10))
@@ -153,45 +157,45 @@ class AccountResourceTest {
         .build();
   }
 
-  Trade generateTrade() {
+  ClientSideTrade generateTrade() {
     return generateTrade(generateAsset());
   }
 
-  org.yafa.api.dto.outbound.Trade createTrade(org.yafa.api.dto.outbound.Account serverAccount,
-      Trade trade) {
+  ServerSideTrade createTrade(ServerSideAccount serverSideAccount,
+      ClientSideTrade clientSideTrade) {
 
     Response response =
         given()
             .contentType(ContentType.JSON)
-            .pathParam("accountId", serverAccount.getId())
+            .pathParam("accountId", serverSideAccount.getId())
             .when()
-            .body(trade)
+            .body(clientSideTrade)
             .post("/{accountId}/trades")
             .then()
             .statusCode(200)
             .extract()
             .response();
-    return response.as(org.yafa.api.dto.outbound.Trade.class);
+    return response.as(ServerSideTrade.class);
   }
 
-  org.yafa.api.dto.outbound.Trade createTrade() {
+  ServerSideTrade createTrade() {
     return createTrade(createAccount(), generateTrade());
   }
 
   @Test
   void recordTrade() {
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount();
-    Trade trade = generateTrade();
-    org.yafa.api.dto.outbound.Trade serverTrade = createTrade(serverAccount, trade);
+    ServerSideAccount serverSideAccount = createAccount();
+    ClientSideTrade clientSideTrade = generateTrade();
+    ServerSideTrade serverTrade = createTrade(serverSideAccount, clientSideTrade);
 
-    assertThat(trade.getAsset(), equalTo(serverTrade.getAsset()));
-    assertThat(trade.getCashFlow(), equalTo(serverTrade.getCashFlow()));
-    assertThat(trade.getQuantity(), equalTo(serverTrade.getQuantity()));
-    assertThat(trade.getUnitPrice(), equalTo(serverTrade.getUnitPrice()));
+    assertThat(clientSideTrade.getAsset(), equalTo(serverTrade.getAsset()));
+    assertThat(clientSideTrade.getCashFlow(), equalTo(serverTrade.getCashFlow()));
+    assertThat(clientSideTrade.getQuantity(), equalTo(serverTrade.getQuantity()));
+    assertThat(clientSideTrade.getUnitPrice(), equalTo(serverTrade.getUnitPrice()));
   }
 
-  Order generateOrder(@NotNull Asset asset) {
-    return Order.builder()
+  ClientSideOrder generateOrder(@NotNull Asset asset) {
+    return ClientSideOrder.builder()
         .timestamp(LocalDateTime.now().atZone(ZoneId.of("UTC")))
         .asset(asset)
         .cashFlow(BigDecimal.valueOf(123.0))
@@ -199,79 +203,79 @@ class AccountResourceTest {
         .build();
   }
 
-  Order generateOrder() {
+  ClientSideOrder generateOrder() {
     return generateOrder(generateAsset());
   }
 
-  org.yafa.api.dto.outbound.Order createOrder(org.yafa.api.dto.outbound.Account serverAccount,
-      Order order) {
+  ServerSideOrder createOrder(ServerSideAccount serverSideAccount,
+      ClientSideOrder clientSideOrder) {
     Response response =
         given()
             .contentType(ContentType.JSON)
-            .pathParam("accountId", serverAccount.getId())
+            .pathParam("accountId", serverSideAccount.getId())
             .when()
-            .body(order)
+            .body(clientSideOrder)
             .post("/{accountId}/orders")
             .then()
             .statusCode(200)
             .extract()
             .response();
-    return response.as(org.yafa.api.dto.outbound.Order.class);
+    return response.as(ServerSideOrder.class);
   }
 
-  org.yafa.api.dto.outbound.Order createOrder() {
+  ServerSideOrder createOrder() {
     return createOrder(createAccount(), generateOrder());
   }
 
   @Test
   void submitOrder() {
-    Order order = generateOrder();
-    org.yafa.api.dto.outbound.Order serverOrder = createOrder(createAccount(), order);
-    assertThat(serverOrder.getOrderStatus(), equalTo(OrderStatus.COMPLETE));
-    assertThat(order.getAsset(), equalTo(serverOrder.getAsset()));
-    assertThat(order.getCashFlow(), equalTo(serverOrder.getCashFlow()));
-    assertThat(order.getQuantity(), equalTo(serverOrder.getQuantity()));
-    assertThat(order.getTimestamp(), equalTo(serverOrder.getTimestamp()));
+    ClientSideOrder clientSideOrder = generateOrder();
+    ServerSideOrder serverSideOrder = createOrder(createAccount(), clientSideOrder);
+    assertThat(serverSideOrder.getOrderStatus(), equalTo(OrderStatus.COMPLETE));
+    assertThat(clientSideOrder.getAsset(), equalTo(serverSideOrder.getAsset()));
+    assertThat(clientSideOrder.getCashFlow(), equalTo(serverSideOrder.getCashFlow()));
+    assertThat(clientSideOrder.getQuantity(), equalTo(serverSideOrder.getQuantity()));
+    assertThat(clientSideOrder.getTimestamp(), equalTo(serverSideOrder.getTimestamp()));
   }
 
   @Test
   void listOrders() {
 
-    Account account = generateAccount();
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount(account);
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
 
-    org.yafa.api.dto.outbound.Order[] serverOrders =
-        new org.yafa.api.dto.outbound.Order[]{
-            createOrder(serverAccount, generateOrder()),
-            createOrder(serverAccount, generateOrder()),
-            createOrder(serverAccount, generateOrder())};
+    ServerSideOrder[] serverSideOrders =
+        new ServerSideOrder[]{
+            createOrder(serverSideAccount, generateOrder()),
+            createOrder(serverSideAccount, generateOrder()),
+            createOrder(serverSideAccount, generateOrder())};
 
     Response response =
         given()
             .contentType(ContentType.JSON)
-            .pathParam("accountId", serverAccount.getId())
+            .pathParam("accountId", serverSideAccount.getId())
             .when()
             .get("/{accountId}/orders")
             .then()
             .statusCode(200)
             .extract()
             .response();
-    List<org.yafa.api.dto.outbound.Order> accounts =
-        response.body().jsonPath().getList(".", org.yafa.api.dto.outbound.Order.class);
-    assertThat(accounts, containsInAnyOrder(serverOrders));
+    List<ServerSideOrder> accounts =
+        response.body().jsonPath().getList(".", ServerSideOrder.class);
+    assertThat(accounts, containsInAnyOrder(serverSideOrders));
   }
 
   @Test
   void listHolding() {
 
-    Account account = generateAccount();
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount(account);
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
 
-    org.yafa.api.dto.outbound.Trade trade = createTrade(serverAccount, generateTrade());
+    ServerSideTrade trade = createTrade(serverSideAccount, generateTrade());
     Response response =
         given()
             .contentType(ContentType.JSON)
-            .pathParam("accountId", serverAccount.getId())
+            .pathParam("accountId", serverSideAccount.getId())
             .queryParam("timestamp", trade.getTimestamp().format(Config.TIME_STAMP_FORMATTER))
             .when()
             .get("/{accountId}/holdings")
@@ -291,8 +295,8 @@ class AccountResourceTest {
 
   @Test
   void listHoldings() {
-    Account account = generateAccount();
-    org.yafa.api.dto.outbound.Account serverAccount = createAccount(account);
+    ClientSideAccount clientSideAccount = generateAccount();
+    ServerSideAccount serverSideAccount = createAccount(clientSideAccount);
     Asset assetPOT = Asset.builder()
         .symbol("POT")
         .currency(CurrencyCode.AED)
@@ -302,19 +306,19 @@ class AccountResourceTest {
         .currency(CurrencyCode.AED)
         .build();
 
-    org.yafa.api.dto.outbound.Trade[] trades = new org.yafa.api.dto.outbound.Trade[]{
-        createTrade(serverAccount, generateTrade(assetABC)),
-        createTrade(serverAccount, generateTrade(assetPOT)),
-        createTrade(serverAccount, generateTrade(assetABC))
+    ServerSideTrade[] trades = new ServerSideTrade[]{
+        createTrade(serverSideAccount, generateTrade(assetABC)),
+        createTrade(serverSideAccount, generateTrade(assetPOT)),
+        createTrade(serverSideAccount, generateTrade(assetABC))
     };
 
-    List<org.yafa.api.dto.outbound.Trade> abcTrades = Arrays.asList(trades[0], trades[2]);
-    List<org.yafa.api.dto.outbound.Trade> potTrades = Arrays.asList(trades[1]);
-    org.yafa.api.dto.outbound.Trade lastTrade = trades[trades.length - 1];
+    List<ServerSideTrade> abcTrades = Arrays.asList(trades[0], trades[2]);
+    List<ServerSideTrade> potTrades = Arrays.asList(trades[1]);
+    ServerSideTrade lastTrade = trades[trades.length - 1];
     Response response =
         given()
             .contentType(ContentType.JSON)
-            .pathParam("accountId", serverAccount.getId())
+            .pathParam("accountId", serverSideAccount.getId())
             .queryParam("timestamp", lastTrade.getTimestamp().format(Config.TIME_STAMP_FORMATTER))
             .when()
             .get("/{accountId}/holdings")

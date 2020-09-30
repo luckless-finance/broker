@@ -1,19 +1,17 @@
 package org.yafa.api.dto.outbound;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
-import org.yafa.api.dto.inbound.OrderStatus;
+import org.yafa.api.dto.inbound.ClientSideTrade;
 
 @Value
 @SuperBuilder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Order extends org.yafa.api.dto.inbound.Order {
+public class ServerSideTrade extends ClientSideTrade {
 
   @NotBlank String id;
-  @NotNull OrderStatus orderStatus;
 }

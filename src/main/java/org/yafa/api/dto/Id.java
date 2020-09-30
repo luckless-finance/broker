@@ -14,10 +14,6 @@ public class Id {
     this.id = id;
   }
 
-  public static String of(String id) {
-    return new Id(id).id;
-  }
-
   public static String create() {
     return new Id(UUID.randomUUID().toString().substring(0, 8)).id;
   }

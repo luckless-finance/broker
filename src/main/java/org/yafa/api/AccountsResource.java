@@ -19,9 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.yafa.annotations.DateTimeFormat;
-import org.yafa.api.dto.inbound.Account;
-import org.yafa.api.dto.inbound.Trade;
+import org.yafa.api.dto.inbound.ClientSideAccount;
+import org.yafa.api.dto.inbound.ClientSideOrder;
+import org.yafa.api.dto.inbound.ClientSideTrade;
 import org.yafa.api.dto.outbound.Holding;
+import org.yafa.api.dto.outbound.ServerSideAccount;
+import org.yafa.api.dto.outbound.ServerSideOrder;
+import org.yafa.api.dto.outbound.ServerSideTrade;
 import org.yafa.exceptions.ConflictException;
 import org.yafa.services.AccountService;
 
@@ -31,25 +35,25 @@ import org.yafa.services.AccountService;
 @Tag(name = "Accounts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class AccountResource {
+public class AccountsResource {
 
   @Inject AccountService accountService;
 
   @POST
   @Operation(summary = "create new Account")
-  public org.yafa.api.dto.outbound.Account create(@Valid Account account) {
+  public ServerSideAccount create(@Valid ClientSideAccount clientSideAccount) {
     try {
-      return accountService.create(account);
+      return accountService.create(clientSideAccount);
     } catch (ConflictException e) {
       // TODO add accountId to error message
-      throw new ClientErrorException(account.getName() + " already exists.", Status.CONFLICT);
+      throw new ClientErrorException(clientSideAccount.getName() + " already exists.", Status.CONFLICT);
     }
   }
 
   @GET
   @Path("/{accountId}")
   // TODO change type of accountId to Id
-  public org.yafa.api.dto.outbound.Account getAccount(@PathParam("accountId") String accountId) {
+  public ServerSideAccount getAccount(@PathParam("accountId") String accountId) {
     try {
       return accountService.getAccount(accountId);
     } catch (org.yafa.exceptions.NotFoundException e) {
@@ -58,34 +62,34 @@ public class AccountResource {
   }
 
   @GET
-  public Collection<org.yafa.api.dto.outbound.Account> listAccounts() {
+  public Collection<ServerSideAccount> listAccounts() {
     return accountService.getAccounts();
   }
 
   @POST
   @Path("/{accountId}/orders")
-  public org.yafa.api.dto.outbound.Order submitOrder(
-      @PathParam("accountId") String accountId, @Valid org.yafa.api.dto.inbound.Order order) {
-    return accountService.submitOrder(accountService.getAccount(accountId), order);
+  public ServerSideOrder submitOrder(
+      @PathParam("accountId") String accountId, @Valid ClientSideOrder clientSideOrder) {
+    return accountService.submitOrder(accountService.getAccount(accountId), clientSideOrder);
   }
 
   @GET
   @Path("/{accountId}/orders")
-  public Collection<org.yafa.api.dto.outbound.Order> listOrders(
+  public Collection<ServerSideOrder> listOrders(
       @PathParam("accountId") String accountId) {
     return accountService.listOrders(accountService.getAccount(accountId));
   }
 
   @POST
   @Path("/{accountId}/trades")
-  public org.yafa.api.dto.outbound.Trade recordTrade(
-      @PathParam("accountId") String accountId, @Valid Trade trade) {
-    return accountService.recordTrade(accountService.getAccount(accountId), trade);
+  public ServerSideTrade recordTrade(
+      @PathParam("accountId") String accountId, @Valid ClientSideTrade clientSideTrade) {
+    return accountService.recordTrade(accountService.getAccount(accountId), clientSideTrade);
   }
 
   @GET
   @Path("/{accountId}/trades")
-  public Collection<Trade> listTrades(@PathParam("accountId") String accountId) {
+  public Collection<ClientSideTrade> listTrades(@PathParam("accountId") String accountId) {
     return accountService.listTrades(accountService.getAccount(accountId));
   }
 

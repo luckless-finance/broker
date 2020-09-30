@@ -7,11 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.yafa.api.dto.Asset;
 import org.yafa.api.dto.CurrencyCode;
-import org.yafa.api.dto.inbound.Order;
+import org.yafa.api.dto.inbound.ClientSideOrder;
 
 class OrderTest {
 
-  Order order;
+  ClientSideOrder clientSideOrder;
   String symbol = "FOO";
   CurrencyCode currency = CurrencyCode.CAD;
   BigDecimal cashFlow = BigDecimal.valueOf(123);
@@ -20,8 +20,8 @@ class OrderTest {
 
   @BeforeEach
   public void setup() {
-    order =
-        Order.builder()
+    clientSideOrder =
+        ClientSideOrder.builder()
             .asset(Asset.builder().symbol(symbol).currency(currency).build())
             .cashFlow(cashFlow)
             .quantity(quantity)
@@ -31,25 +31,25 @@ class OrderTest {
 
   @Test
   void testEquivalence() {
-    Order equivalentOrder =
-        Order.builder()
+    ClientSideOrder equivalentClientSideOrder =
+        ClientSideOrder.builder()
             .asset(Asset.builder().symbol(symbol).currency(currency).build())
             .cashFlow(cashFlow)
             .quantity(quantity)
             .timestamp(timestamp)
             .build();
-    Assertions.assertEquals(order, equivalentOrder);
-    Assertions.assertEquals(order.hashCode(), equivalentOrder.hashCode());
+    Assertions.assertEquals(clientSideOrder, equivalentClientSideOrder);
+    Assertions.assertEquals(clientSideOrder.hashCode(), equivalentClientSideOrder.hashCode());
 
     ZonedDateTime differentTimestamp = ZonedDateTime.now();
-    Order differentOrder =
-        Order.builder()
+    ClientSideOrder differentClientSideOrder =
+        ClientSideOrder.builder()
             .asset(Asset.builder().symbol(symbol).currency(currency).build())
             .cashFlow(cashFlow)
             .quantity(quantity)
             .timestamp(differentTimestamp)
             .build();
-    Assertions.assertNotEquals(order, differentOrder);
-    Assertions.assertNotEquals(order.hashCode(), differentOrder.hashCode());
+    Assertions.assertNotEquals(clientSideOrder, differentClientSideOrder);
+    Assertions.assertNotEquals(clientSideOrder.hashCode(), differentClientSideOrder.hashCode());
   }
 }

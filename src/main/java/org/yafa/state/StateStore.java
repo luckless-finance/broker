@@ -1,23 +1,26 @@
 package org.yafa.state;
 
 import java.util.Collection;
-import org.yafa.api.dto.inbound.Account;
-import org.yafa.api.dto.inbound.Trade;
-import org.yafa.api.dto.outbound.Order;
+import org.yafa.api.dto.inbound.ClientSideAccount;
+import org.yafa.api.dto.inbound.ClientSideOrder;
+import org.yafa.api.dto.inbound.ClientSideTrade;
+import org.yafa.api.dto.outbound.ServerSideAccount;
+import org.yafa.api.dto.outbound.ServerSideOrder;
+import org.yafa.api.dto.outbound.ServerSideTrade;
 
 public interface StateStore {
 
-  org.yafa.api.dto.outbound.Account createAccount(Account account);
+  ServerSideAccount createAccount(ClientSideAccount clientSideAccount);
 
-  Collection<org.yafa.api.dto.outbound.Account> getAccounts();
+  Collection<ServerSideAccount> getAccounts();
 
-  org.yafa.api.dto.outbound.Account getAccount(String accountId);
+  ServerSideAccount getAccount(String accountId);
 
-  Order saveOrder(org.yafa.api.dto.outbound.Account account, org.yafa.api.dto.inbound.Order order);
+  ServerSideOrder saveOrder(ServerSideAccount serverSideAccount, ClientSideOrder clientSideOrder);
 
-  Collection<Order> getOrders(org.yafa.api.dto.outbound.Account account);
+  Collection<ServerSideOrder> getOrders(ServerSideAccount serverSideAccount);
 
-  Collection<Trade> getTrades(org.yafa.api.dto.outbound.Account account);
+  Collection<ClientSideTrade> getTrades(ServerSideAccount serverSideAccount);
 
-  org.yafa.api.dto.outbound.Trade saveTrade(org.yafa.api.dto.outbound.Account account, Trade trade);
+  ServerSideTrade saveTrade(ServerSideAccount serverSideAccount, ClientSideTrade clientSideTrade);
 }

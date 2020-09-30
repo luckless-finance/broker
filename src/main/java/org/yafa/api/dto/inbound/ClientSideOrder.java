@@ -15,7 +15,7 @@ import org.yafa.api.dto.Config;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Trade {
+public class ClientSideOrder {
 
   @NotNull Asset asset;
 
@@ -24,6 +24,5 @@ public class Trade {
   ZonedDateTime timestamp;
 
   @NotNull BigDecimal quantity;
-  @NotNull BigDecimal unitPrice;
   @NotNull BigDecimal cashFlow;
 }

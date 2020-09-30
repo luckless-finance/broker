@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {
+public class ClientSideAccount {
 
   @NotBlank String name;
 }
