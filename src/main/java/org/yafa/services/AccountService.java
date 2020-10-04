@@ -42,7 +42,7 @@ public class AccountService {
     return stateStore.getAccount(accountId);
   }
 
-  public Collection<ClientSideTrade> listTrades(ServerSideAccount serverSideAccount) {
+  public Collection<ServerSideTrade> listTrades(ServerSideAccount serverSideAccount) {
     return stateStore.getTrades(serverSideAccount);
   }
 
@@ -54,7 +54,7 @@ public class AccountService {
   public Collection<Holding> listHoldings(
       ServerSideAccount serverSideAccount, ZonedDateTime timestamp) {
     log.error(timestamp.toString());
-    Collection<ClientSideTrade> clientSideTrades = stateStore.getTrades(serverSideAccount);
+    Collection<ServerSideTrade> clientSideTrades = stateStore.getTrades(serverSideAccount);
     Map<Asset, List<ClientSideTrade>> tradesByAsset =
         clientSideTrades.stream().collect(groupingBy(ClientSideTrade::getAsset, toList()));
     List<Holding> holdings = Lists.newLinkedList();

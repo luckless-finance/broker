@@ -89,7 +89,7 @@ public class AccountsResource {
 
   @GET
   @Path("/{accountId}/trades")
-  public Collection<ClientSideTrade> listTrades(@PathParam("accountId") String accountId) {
+  public Collection<ServerSideTrade> listTrades(@PathParam("accountId") String accountId) {
     return accountService.listTrades(accountService.getAccount(accountId));
   }
 
