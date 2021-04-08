@@ -1,6 +1,7 @@
 package org.yafa.api.dto.outbound;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
@@ -20,6 +21,10 @@ public class Holding {
   ZonedDateTime timestamp;
 
   BigDecimal quantity;
+
+  @JsonProperty("market_value")
   BigDecimal marketValue;
+
+  @JsonProperty("book_value")
   BigDecimal bookValue;
 }
