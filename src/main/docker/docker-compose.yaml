@@ -1,0 +1,99 @@
+# This file describes the containers that will start when you run docker-compose up in this directory
+# A default development set up only requires mongo, mysql, and nginx so you can remove the rabbit section
+# of this file
+# This file requires $HOST_IP to be set before running these containers. Look at docker-compose.sh/docker-compose-batch.bat
+# for help with that
+version: "3"
+#volumes:
+  # run `docker volume create mongo_external` first to create this external volume to work (required for windows bug)
+#  mongo_external:
+#    external: true
+services:
+  broker-service:
+    container_name: broker
+    image: broker:latest
+    ports:
+      - 3010:3010
+#
+#  # mongo:
+#  #   container_name: mongo
+#  #   image: mongo:3.6.0
+#  #   # Set up the data directory for mongo. This setup assumes you have a data/mongo folder
+#  #   # 2 folders up relative to this path where data will be stored
+#  #   volumes:
+#  #     - mongo_external:/data/db
+#  #     - ../../../data/mongo:/data
+#  #   ports:
+#  #     - "127.0.0.1:27017:27017"
+#  mongo:
+#    container_name: mongo
+#    image: mongo:4.0
+#    # Set up the data directory for mongo. This setup assumes you have a data/mongo folder
+#    # 2 folders up relative to this path where data will be stored
+#    volumes:
+#      - mongo_external:/data/db
+#      - ../../../data/mongo:/data
+#    ports:
+#      - "127.0.0.1:27017:27017"
+#  rabbit:
+#    container_name: rabbit
+#    image: rabbitmq:3.6.15-management
+#    ports:
+#      - "127.0.0.1:5672:5672"
+#      - "127.0.0.1:15672:15672"
+#      - "127.0.0.1:25672:25672"
+#  mysql:
+#    container_name: mysql
+#    #  /var/lib/mysql is the default data directory for mysql. This setup assumes you have a data/mysql folder
+#    #   2 folders up relative to this path where data will be stored
+#    volumes:
+#      - ../../../data/mysql:/var/lib/mysql
+#    ports:
+#      - "127.0.0.1:3306:3306"
+#    build: ./mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=1abcdefg
+#      - MYSQL_USER=vena
+#      - MYSQL_PASSWORD=1abcdefg
+#  web-client:
+#    container_name: web-client
+#    # docker-compose assumes image already built
+#    image: web-client:latest
+#    ports:
+#      - "0.0.0.0:8000:8000"
+#  elasticsearch:
+#    image: barnybug/elasticsearch:1.2.1
+#    container_name: elasticsearch
+#    network_mode: "host"
+#    ports:
+#      - "127.0.0.1:9200:9200"
+#      - "127.0.0.1:9300:9300"
+#    volumes:
+#      - ../../../data/esdata:/elasticsearch-1.2.1/data
+  # influxdb:
+  #   container_name: influxdb
+  #   image: influxdb
+  #   ports:
+  #     - "127.0.0.1:8083:8083"
+  #     - "127.0.0.1:8086:8086"
+  # telegraf:
+  #   container_name: telegraf
+  #   image: telegraf
+  #   environment:
+  #     - HOST_PROC=/rootfs/proc
+  #     - HOST_SYS=/rootfs/sys
+  #     - HOST_ETC=/rootfs/etc
+  #   volumes:
+  #      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+  #      - /var/run/docker.sock:/var/run/docker.sock:ro
+  #      - /sys:/rootfs/sys:ro
+  #      - /proc:/rootfs/proc:ro
+  #      - /etc:/rootfs/etc:ro
+  # chronograf:
+  #   container_name: chronograf
+  #   image: chronograf
+  #   ports:
+  #     - "127.0.0.1:8888:8888"
+  #   volumes:
+  #     - ../../../data/chronograf:/var/lib/chronograf
+  #   command: --influxdb-url=http://influxdb:8086

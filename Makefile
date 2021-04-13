@@ -1,6 +1,7 @@
 APPLICATION_NAME=`cat settings.gradle | grep "rootProject.name=" | sed 's/rootProject.name=.\(.*\)./\1/'`
+APPLICATION_VERSION=`cat build.gradle | grep -E "^version" | sed "s/version '\(.*\)'/\1/"`
 
-MAVEN_ARTIFACT_VERSION=${APPLICATION_NAME}:${APPLICATION_VERSION}
+ARTIFACT_VERSION=${APPLICATION_NAME}:${APPLICATION_VERSION}
 DOCKER_IMAGE_NATIVE=${APPLICATION_NAME}:${APPLICATION_VERSION}-native
 DOCKER_IMAGE_JVM=${APPLICATION_NAME}:${APPLICATION_VERSION}-jvm
 DOCKER_COMPOSE_FILE=src/test/docker/docker-compose.yml
@@ -9,16 +10,15 @@ DOCKER_COMPOSE_FILE=src/test/docker/docker-compose.yml
 
 help:
 	@echo "-------------------"
-	@echo "developer entry point for vena-packages"
+	@echo "developer entry point for luckless-bot"
 	@echo "-------------------"
 	@echo "SUPPORTED MAKE COMMANDS:"
 	@./utils/make-help.pl | column -t -s '|'
 	@echo ""
 	@echo "CURRENT LOCAL BUILD CONFIG:"
 	@echo "JAVA_HOME=${JAVA_HOME}"
-	@echo "GRAALVM_HOME=${GRAALVM_HOME}"
 	java -version
-	mvn --version
+	gradle --version
 	docker --version
 	@echo ""
 	@echo "BUILD ARTIFACTS:"
@@ -53,7 +53,7 @@ compile: clean
 
 dev:
 	@echo "-------------------"
-	@echo "start development vena-packages REST server with hot-reloading"
+	@echo "start development REST server with hot-reloading"
 	@echo "-------------------"
 	gradle quarkusDev
 
@@ -69,26 +69,33 @@ native-test: clean
 	@echo "-------------------"
 	gradle testNative
 
-
 # NATIVE TARGET
-#package-native: compile
-#	@echo "-------------------"
-#	@echo "build native executable for current host OS"
-#	@echo "-------------------"
-#	gradle build -Dquarkus.package.type=native
-#
-#start-native: package-native
-#	@echo "-------------------"
-#	@echo "start native application"
-#	@echo "-------------------"
-#	./target/${APPLICATION_NAME}-${APPLICATION_VERSION}
-#
-#native-image: compile
-#	@echo "-------------------"
-#	@echo "build native docker image"
-#	@echo "-------------------"
-#	./mvnw package -Dstyle.color=always -DskipTests=true -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:20.1-java11
-#	docker build -f src/main/docker/Dockerfile.native -t ${DOCKER_IMAGE_NATIVE} .
+package-native: clean
+	@echo "-------------------"
+	@echo "build native executable for current host OS"
+	@echo "-------------------"
+	gradle build -Dquarkus.package.type=native
+
+start-native: package-native
+	@echo "-------------------"
+	@echo "start native application"
+	@echo "-------------------"
+	./target/${APPLICATION_NAME}-${APPLICATION_VERSION}
+
+native-image: clean
+	@echo "-------------------"
+	@echo "build native docker image"
+	@echo "-------------------"
+	#./mvnw package -Dstyle.color=always -DskipTests=true -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:20.1-java11
+	./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
+	docker build -f src/main/docker/Dockerfile.native -t ${DOCKER_IMAGE_NATIVE} -t ${APPLICATION_NAME}:latest .
+
+docker-compose-up:
+	@echo "-------------------"
+	@echo "start docker broker:latest image in docker-compose"
+	@echo "-------------------"
+	docker-compose --file src/main/docker/docker-compose.yml up --remove-orphans
+
 #
 #save-native-image: native-image
 #	@echo "-------------------"

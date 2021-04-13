@@ -53,6 +53,8 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+// https://quarkus.io/guides/gradle-tooling#building-a-native-executable
+// ./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
 quarkusBuild {
     nativeArgs {
         containerBuild = true
