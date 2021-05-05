@@ -1,5 +1,6 @@
 package org.yafa.api.dto.outbound;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,5 +17,8 @@ import org.yafa.api.dto.inbound.OrderStatus;
 public class ServerSideOrder extends ClientSideOrder {
 
   @NotBlank String id;
-  @NotNull OrderStatus orderStatus;
+
+  @JsonProperty("order_status")
+  @NotNull
+  OrderStatus orderStatus;
 }

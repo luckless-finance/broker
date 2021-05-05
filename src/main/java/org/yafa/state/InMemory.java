@@ -26,7 +26,7 @@ public class InMemory implements StateStore {
   Map<String, ServerSideAccount> accountsByName = Maps.newHashMap();
   Map<String, ServerSideAccount> accounts = Maps.newHashMap();
   Map<ServerSideAccount, Map<String, ServerSideOrder>> orders = Maps.newHashMap();
-  Map<ServerSideAccount, Map<String, ClientSideTrade>> trades = Maps.newHashMap();
+  Map<ServerSideAccount, Map<String, ServerSideTrade>> trades = Maps.newHashMap();
 
   private Optional<ServerSideAccount> findByName(String name) {
     return accounts.values().stream().filter(account -> account.getName().equals(name)).findFirst();
@@ -103,7 +103,7 @@ public class InMemory implements StateStore {
   }
 
   @Override
-  public Collection<ClientSideTrade> getTrades(ServerSideAccount serverSideAccount) {
+  public Collection<ServerSideTrade> getTrades(ServerSideAccount serverSideAccount) {
     getAccount(serverSideAccount.getId());
     return trades.get(serverSideAccount).values();
   }

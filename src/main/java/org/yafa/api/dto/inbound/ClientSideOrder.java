@@ -1,6 +1,7 @@
 package org.yafa.api.dto.inbound;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
@@ -24,5 +25,8 @@ public class ClientSideOrder {
   ZonedDateTime timestamp;
 
   @NotNull BigDecimal quantity;
-  @NotNull BigDecimal cashFlow;
+
+  @JsonProperty("cash_flow")
+  @NotNull
+  BigDecimal cashFlow;
 }

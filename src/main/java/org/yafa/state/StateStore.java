@@ -20,7 +20,7 @@ public interface StateStore {
 
   Collection<ServerSideOrder> getOrders(ServerSideAccount serverSideAccount);
 
-  Collection<ClientSideTrade> getTrades(ServerSideAccount serverSideAccount);
+  Collection<ServerSideTrade> getTrades(ServerSideAccount serverSideAccount);
 
   ServerSideTrade saveTrade(ServerSideAccount serverSideAccount, ClientSideTrade clientSideTrade);
 }
